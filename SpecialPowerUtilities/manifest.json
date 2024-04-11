@@ -1,0 +1,10 @@
+﻿{
+  "Name": "Special Power Utilities",
+  "Author": "Spiderbuttons",
+  "Version": "1.0.0",
+  "Description": "Several small, helpful utility features for adding custom powers.",
+  "UniqueID": "Spiderbuttons.SpecialPowerUtilities",
+  "EntryDll": "SpecialPowerUtilities.dll",
+  "MinimumApiVersion": "4.0.0",
+  "UpdateKeys": []
+}
