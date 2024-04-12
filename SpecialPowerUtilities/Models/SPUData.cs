@@ -25,13 +25,4 @@ public class SPUData
     public Point TexturePosition;
     
     public string UnlockedCondition;
-
-    public SPUData(PowersData powersData)
-    {
-        DisplayName = powersData.DisplayName;
-        Description = powersData.Description;
-        TexturePath = powersData.TexturePath;
-        TexturePosition = powersData.TexturePosition;
-        UnlockedCondition = powersData.UnlockedCondition;
-    }
 }

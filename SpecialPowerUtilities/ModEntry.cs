@@ -22,8 +22,6 @@ namespace SpecialPowerUtilities
         internal static IMonitor ModMonitor { get; set; } = null!;
         internal static Harmony harmony { get; set; } = null!;
         
-        internal static List<KeyValuePair<string, SPUData>> PowerExtensions = new();
-        
         public override void Entry(IModHelper helper)
         {
             ModHelper = helper;
@@ -31,14 +29,22 @@ namespace SpecialPowerUtilities
             harmony = new Harmony(ModManifest.UniqueID);
             harmony.PatchAll();
             Helper.Events.Display.MenuChanged += OnMenuChange;
+            Helper.Events.Content.AssetRequested += OnAssetRequested;
+        }
+        
+        private void OnAssetRequested(object sender, AssetRequestedEventArgs e)
+        {
+            Helper.GameContent.InvalidateCache("SpecialPowerUtilities/Powers");
+            if (e.NameWithoutLocale.IsEquivalentTo("SpecialPowerUtilities/Powers"))
+                e.LoadFrom(() => new Dictionary<string, SPUData>(), AssetLoadPriority.High);
+            if (e.NameWithoutLocale.IsEquivalentTo("SpecialPowerUtilities/Categories"))
+                e.LoadFrom(() => new Dictionary<string, CategoryData>(), AssetLoadPriority.High);
         }
         
         private void OnMenuChange(object sender, MenuChangedEventArgs e)
         {
             if (e.NewMenu is not GameMenu menu)
                 return;
-            // log the type of menu it is
-            Loggers.Log($"Menu: {e.NewMenu.GetType().Name}");
             int powersTabIndex = 0;
             for (int i = 0; i < menu.pages.Count; i++)
             {
@@ -47,7 +53,7 @@ namespace SpecialPowerUtilities
                 powersTabIndex = i;
                 break;
             }
-            Loggers.Log($"Found PowersTab at index {powersTabIndex}");
+            Loggers.Log($"Found PowersTab at index {powersTabIndex}", LogLevel.Trace);
             IClickableMenu oldTab = menu.pages[powersTabIndex];
             try
             {
@@ -55,7 +61,7 @@ namespace SpecialPowerUtilities
             }
             catch (Exception ex)
             {
-                Loggers.Log($"Failed to replace PowersTab: {ex.Message}");
+                Loggers.Log($"Failed to replace PowersTab: {ex.Message}", LogLevel.Error);
             }
         }
     }
