@@ -7,6 +7,9 @@ using System.Reflection;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using HarmonyLib;
+using Microsoft.Xna.Framework.Input;
+using SpecialPowerUtilities.Components;
+using SpecialPowerUtilities.Config;
 using StardewValley;
 using StardewModdingAPI;
 using SpecialPowerUtilities.Helpers;
@@ -33,11 +36,15 @@ namespace SpecialPowerUtilities.Menus
 
         public static int modID = 21526;
 
-        public int region_forwardButton = modID + 1;
+        public int region_forwardButton = 707;
 
-        public int region_backButton = modID + 2;
+        public int region_backButton = 706;
 
-        public  int distanceFromMenuBottomBeforeNewPage = 128;
+        public int region_scrollUp = 700;
+
+        public int region_scrollDown = 701;
+
+        public int distanceFromMenuBottomBeforeNewPage = 128;
 
         public int widthToMoveActiveTab = 8;
 
@@ -45,29 +52,194 @@ namespace SpecialPowerUtilities.Menus
 
         public ClickableTextureComponent forwardButton;
 
-        public Dictionary<string, ClickableTextureComponent> sideTabs = new Dictionary<string, ClickableTextureComponent>();
-        
-        public Dictionary<string, List<List<ClickableTextureComponent>>> categories = new Dictionary<string, List<List<ClickableTextureComponent>>>();
-        
-        public Dictionary<string, CategoryData> categoryData = new Dictionary<string, CategoryData>();
+        public ClickableTextureComponent scrollUp;
 
-        public string currentTab = "Stardew Valley";
+        public ClickableTextureComponent scrollDown;
+
+        public Dictionary<string, RClickableTextureComponent> sideTabs =
+            new Dictionary<string, RClickableTextureComponent>();
+
+        public Dictionary<string, ClickableTextureComponent> tabIcons =
+            new Dictionary<string, ClickableTextureComponent>();
+
+        public Dictionary<string, List<List<ClickableTextureComponent>>> sections =
+            new Dictionary<string, List<List<ClickableTextureComponent>>>();
+
+        public Dictionary<string, ModSectionData> modSectionData = new Dictionary<string, ModSectionData>();
+
+        public string currentTab = i18n.HoverText_StardewValley();
+
+        public string currentTabIcon = i18n.HoverText_StardewValley();
 
         public int currentPage;
 
         private string descriptionText = "";
 
         private string hoverText = "";
-        
+
+        private int scrollTrack = 0;
+
         Dictionary<string, SPUData> allPowers = new Dictionary<string, SPUData>();
+
+        private List<string> activePowers;
         
-        Texture2D StardewIcon = ModEntry.ModHelper.ModContent.Load<Texture2D>("assets/TabIcons/StardewPowers.png");
-        Texture2D ModdedIcon = ModEntry.ModHelper.ModContent.Load<Texture2D>("assets/TabIcons/ModdedPowers.png");
+        private List<string> inactivePowers;
+
+        Texture2D BlankTab = SpecialPowerUtilities.ModHelper.ModContent.Load<Texture2D>("assets/TabIcons/BlankTab.png");
+        Texture2D CatIcon = SpecialPowerUtilities.ModHelper.ModContent.Load<Texture2D>("assets/TabIcons/Cat.png");
+        Texture2D ConcernedApeIcon = SpecialPowerUtilities.ModHelper.ModContent.Load<Texture2D>("assets/TabIcons/ConcernedApe.png");
+        Texture2D CrystalIcon = SpecialPowerUtilities.ModHelper.ModContent.Load<Texture2D>("assets/TabIcons/Crystal.png");
+        Texture2D GiftIcon = SpecialPowerUtilities.ModHelper.ModContent.Load<Texture2D>("assets/TabIcons/Gift.png");
+        Texture2D MysteryIcon = SpecialPowerUtilities.ModHelper.ModContent.Load<Texture2D>("assets/TabIcons/Mystery.png");
+        Texture2D PufferIcon = SpecialPowerUtilities.ModHelper.ModContent.Load<Texture2D>("assets/TabIcons/Puffer.png");
+        Texture2D StardropIcon = SpecialPowerUtilities.ModHelper.ModContent.Load<Texture2D>("assets/TabIcons/Stardrop.png");
+        Texture2D TicketIcon = SpecialPowerUtilities.ModHelper.ModContent.Load<Texture2D>("assets/TabIcons/Ticket.png");
         
-        IModHelper Helper = ModEntry.ModHelper;
+        List<Texture2D> BackupIcons = new List<Texture2D>();
+
+        IModHelper Helper = SpecialPowerUtilities.ModHelper;
 
         public SPUTab(int x, int y, int width, int height) : base(x, y, width, height)
         {
+            // fill BackupIcons with every icon except ConcernedApe
+            BackupIcons.Add(CatIcon);
+            BackupIcons.Add(CrystalIcon);
+            BackupIcons.Add(GiftIcon);
+            BackupIcons.Add(MysteryIcon);
+            BackupIcons.Add(PufferIcon);
+            BackupIcons.Add(StardropIcon);
+            BackupIcons.Add(TicketIcon);
+            
+            this.sideTabs.Add(i18n.HoverText_StardewValley(), new RClickableTextureComponent(0.ToString() ?? "",
+                new Rectangle(base.xPositionOnScreen - 48 + widthToMoveActiveTab,
+                    base.yPositionOnScreen + 64 * (2 + this.sideTabs.Count), 64, 64), "", i18n.HoverText_StardewValley(),
+                Game1.mouseCursors,
+                new Rectangle(16, 368, 16, 16), 4f)
+            {
+                myID = 7001 + sideTabs.Count,
+                downNeighborID = -99998,
+                upNeighborID = 12346,
+                rightNeighborID = 0,
+                leftNeighborID = region_scrollDown
+            });
+            this.tabIcons.Add(i18n.HoverText_StardewValley(), new ClickableTextureComponent(0.ToString() ?? "",
+                new Rectangle(base.xPositionOnScreen - 32 + widthToMoveActiveTab,
+                    base.yPositionOnScreen + 64 * (2 + this.tabIcons.Count) + 10, 64, 64), "", i18n.HoverText_StardewValley(),
+                ConcernedApeIcon,
+                new Rectangle(0, 0, ConcernedApeIcon.Width, ConcernedApeIcon.Height), 64f / ConcernedApeIcon.Width / 1.5f)
+            {
+                myID = -7777 + tabIcons.Count,
+                downNeighborID = -99998,
+                rightNeighborID = 0
+            });
+
+            this.sections.Add(i18n.HoverText_StardewValley(), new List<List<ClickableTextureComponent>>());
+
+            activePowers = getActivePowers();
+            inactivePowers = getInactivePowers();
+            
+            loadMods();
+            separateMods();
+
+            if (sections.ContainsKey(i18n.HoverText_Misc()))
+            {
+                List<List<ClickableTextureComponent>> misc = sections[i18n.HoverText_Misc()];
+                sections.Remove(i18n.HoverText_Misc());
+                sections.Add(i18n.HoverText_Misc(), misc);
+            }
+
+            foreach (var tab in sections)
+            {
+                if (tab.Key == i18n.HoverText_StardewValley()) continue;
+                Texture2D ModdedIcon;
+                if (BackupIcons.Count > 0)
+                {
+                    ModdedIcon = BackupIcons[0];
+                    BackupIcons.RemoveAt(0);
+                }
+                else
+                {
+                    ModdedIcon = PufferIcon;
+                }
+                if (tab.Key == i18n.HoverText_Misc())
+                {
+                    this.sideTabs.Add(tab.Key, new RClickableTextureComponent(0.ToString() ?? "",
+                        new Rectangle(base.xPositionOnScreen - 48,
+                            base.yPositionOnScreen + 64 * (2 + this.sideTabs.Count), 64, 64), "", tab.Key,
+                        Game1.mouseCursors,
+                        new Rectangle(16, 368, 16, 16), 4f)
+                    {
+                        myID = 7001 + sideTabs.Count,
+                        upNeighborID = 7001 + sideTabs.Count - 1,
+                        downNeighborID = 7001 + sideTabs.Count + 1,
+                        rightNeighborID = 0,
+                        leftNeighborID = region_scrollDown
+                    });
+                    this.tabIcons.Add(tab.Key, new ClickableTextureComponent(0.ToString() ?? "",
+                        new Rectangle(base.xPositionOnScreen - 32,
+                            base.yPositionOnScreen + 64 * (2 + this.tabIcons.Count) + 10, 64, 64), "", tab.Key,
+                        ModdedIcon,
+                        new Rectangle(0, 0, ModdedIcon.Width, ModdedIcon.Height), 64f / ModdedIcon.Width / 1.5f)
+                    {
+                        myID = 2000 + tabIcons.Count,
+                        upNeighborID = 2000,
+                        downNeighborID = -99998,
+                        rightNeighborID = 0,
+                        leftNeighborID = region_scrollDown
+                    });
+                }
+                else
+                {
+                    if (modSectionData[tab.Key].IconPath != null)
+                    {
+                        ModdedIcon = Game1.content.Load<Texture2D>(modSectionData[tab.Key].IconPath);
+                    }
+
+                    this.sideTabs.Add(tab.Key, new RClickableTextureComponent(0.ToString() ?? "",
+                        new Rectangle(base.xPositionOnScreen - 48,
+                            base.yPositionOnScreen + 64 * (2 + this.sideTabs.Count), 64, 64), "",
+                        modSectionData[tab.Key].CategoryName,
+                        Game1.mouseCursors,
+                        new Rectangle(16, 368, 16, 16), 4f)
+                    {
+                        myID = 7001 + sideTabs.Count,
+                        upNeighborID = 7001 + sideTabs.Count - 1,
+                        downNeighborID = 7001 + sideTabs.Count + 1,
+                        rightNeighborID = 0,
+                        leftNeighborID = region_scrollDown
+                    });
+                    this.tabIcons.Add(tab.Key, new ClickableTextureComponent(0.ToString() ?? "",
+                        new Rectangle(base.xPositionOnScreen - 32,
+                            base.yPositionOnScreen + 64 * (2 + this.tabIcons.Count) + 10, 64, 64), "",
+                        modSectionData[tab.Key].CategoryName,
+                        ModdedIcon,
+                        new Rectangle(0, 0, ModdedIcon.Width, ModdedIcon.Height), 64f / ModdedIcon.Width / 1.5f)
+                    {
+                        myID = 2000 + tabIcons.Count,
+                        upNeighborID = 2000,
+                        downNeighborID = -99998,
+                        rightNeighborID = 0
+                    });
+                }
+            }
+
+            this.sideTabs[i18n.HoverText_StardewValley()].upNeighborID = -1;
+            this.sideTabs[i18n.HoverText_StardewValley()].upNeighborImmutable = true;
+
+            string last_tab = i18n.HoverText_StardewValley();
+            int last_y = 0;
+            foreach (string key in this.sideTabs.Keys)
+            {
+                if (this.sideTabs[key].bounds.Y > last_y)
+                {
+                    last_y = this.sideTabs[key].bounds.Y;
+                    last_tab = key;
+                }
+            }
+
+            this.sideTabs[last_tab].downNeighborID = -1;
+            this.sideTabs[last_tab].downNeighborImmutable = true;
+
             this.backButton = new ClickableTextureComponent(
                 new Rectangle(base.xPositionOnScreen + 48, base.yPositionOnScreen + height - 80, 48, 44),
                 Game1.mouseCursors, new Rectangle(352, 495, 12, 11), 4f)
@@ -82,79 +254,95 @@ namespace SpecialPowerUtilities.Menus
                 myID = region_forwardButton,
                 leftNeighborID = -7777
             };
-            this.sideTabs.Add("Stardew Valley", new ClickableTextureComponent(0.ToString() ?? "",
-                new Rectangle(base.xPositionOnScreen - 48 + widthToMoveActiveTab,
-                    base.yPositionOnScreen + 64 * (2 + this.sideTabs.Count), 64, 64), "", "Stardew Valley", StardewIcon,
-                new Rectangle(0, 0, 32, 32), 2f)
+            this.scrollUp = new ClickableTextureComponent(
+                new Rectangle(base.xPositionOnScreen - 104,
+                    base.yPositionOnScreen + 64 * 2 + 10, 48, 44),
+                Game1.mouseCursors, new Rectangle(421, 459, 11, 12), 4f)
             {
-                myID = sideTabs.Count,
-                downNeighborID = -99998,
-                rightNeighborID = 0
-            });
-            this.categories.Add("Stardew Valley", new List<List<ClickableTextureComponent>>());
-            
-            loadMods();
-            separateMods();
-            
-            // move the "Miscellaneous" category to the end but only if it actually exists
-            if (categories.ContainsKey("Miscellaneous"))
+                myID = region_scrollUp,
+                downNeighborID = region_scrollDown,
+                leftNeighborID = -7777,
+                rightNeighborID = 7001,
+            };
+            this.scrollDown = new ClickableTextureComponent(
+                new Rectangle(base.xPositionOnScreen - 104,
+                    base.yPositionOnScreen + 64 * 9 + 12, 48, 44),
+                Game1.mouseCursors, new Rectangle(421, 472, 11, 12), 4f)
             {
-                List<List<ClickableTextureComponent>> misc = categories["Miscellaneous"];
-                categories.Remove("Miscellaneous");
-                categories.Add("Miscellaneous", misc);
+                myID = region_scrollDown,
+                upNeighborID = region_scrollUp,
+                leftNeighborID = -7777,
+                rightNeighborID = 1007 + scrollTrack,
+            };
+        }
+
+        public override void populateClickableComponentList()
+        {
+            base.populateClickableComponentList();
+            foreach (KeyValuePair<string, RClickableTextureComponent> v in sideTabs)
+            {
+                this.allClickableComponents.Add(v.Value);
             }
-            
-            foreach (var tab in categories)
+
+            foreach (KeyValuePair<string, List<List<ClickableTextureComponent>>> v in sections)
             {
-                if (tab.Key == "Stardew Valley") continue;
-                if (tab.Key == "Miscellaneous")
+                foreach (List<ClickableTextureComponent> list in v.Value)
                 {
-                    this.sideTabs.Add(tab.Key, new ClickableTextureComponent(0.ToString() ?? "",
-                        new Rectangle(base.xPositionOnScreen - 48,
-                            base.yPositionOnScreen + 64 * (2 + this.sideTabs.Count), 64, 64), "", tab.Key,
-                        ModdedIcon,
-                        new Rectangle(0, 0, 32, 32), 2f)
+                    foreach (ClickableTextureComponent c in list)
                     {
-                        myID = sideTabs.Count,
-                        downNeighborID = -99998,
-                        rightNeighborID = 0
-                    });
-                }
-                else
-                {
-                    Texture2D icon;
-                    icon = categoryData[tab.Key].IconPath != null ? Game1.content.Load<Texture2D>(categoryData[tab.Key].IconPath) : ModdedIcon;
-                    
-                    this.sideTabs.Add(tab.Key, new ClickableTextureComponent(0.ToString() ?? "",
-                        new Rectangle(base.xPositionOnScreen - 48,
-                            base.yPositionOnScreen + 64 * (2 + this.sideTabs.Count), 64, 64), "", categoryData[tab.Key].CategoryName,
-                        icon,
-                        new Rectangle(categoryData[tab.Key].IconPosition.X, categoryData[tab.Key].IconPosition.Y, 32, 32), 2f)
-                    {
-                        myID = sideTabs.Count,
-                        downNeighborID = -99998,
-                        rightNeighborID = 0
-                    });
-                
+                        this.allClickableComponents.Add(c);
+                    }
                 }
             }
             
-            this.sideTabs["Stardew Valley"].upNeighborID = -1;
-            this.sideTabs["Stardew Valley"].upNeighborImmutable = true;
-            
-            string last_tab = "Stardew Valley";
-            int last_y = 0;
-            foreach (string key in this.sideTabs.Keys)
+            recalculateNeighbours();
+        }
+
+        public void recalculateNeighbours()
+        {
+            // set the left neighbor id of all sidetabs to -7777 if there are no scrollbars (if sideTabs.count < 8)
+            if (sideTabs.Count < 8)
             {
-                if (this.sideTabs[key].bounds.Y > last_y)
+                foreach (KeyValuePair<string, RClickableTextureComponent> v in sideTabs)
                 {
-                    last_y = this.sideTabs[key].bounds.Y;
-                    last_tab = key;
+                    v.Value.leftNeighborID = -7777;
                 }
             }
-            
-            this.sideTabs[last_tab].downNeighborID = -1;
-            this.sideTabs[last_tab].downNeighborImmutable = true;
+            else
+            {
+                for (int i = 0; i < sideTabs.Count; i++)
+                {
+                    if (i < scrollTrack + 4)
+                    {
+                        sideTabs.Values.ElementAt(i).leftNeighborID = scrollTrack > 0 ? region_scrollUp : scrollTrack >= sideTabs.Count - 8 ? -7777 : region_scrollDown;
+                    }
+                    else
+                    {
+                        sideTabs.Values.ElementAt(i).leftNeighborID = scrollTrack < sideTabs.Count - 8 ? region_scrollDown : scrollTrack <= 0 ? -7777 : region_scrollUp;
+                    }
+                }
+                // change the rightneighbors of the scroll buttons too
+                scrollUp.rightNeighborID = 7001;
+                scrollDown.rightNeighborID = 1007 + scrollTrack;
+            }
+            // change the rightneighborid of all the sidetabs according to what page we're on
+            int index = 0;
+            foreach (KeyValuePair<string, List<List<ClickableTextureComponent>>>
+                         category in sections)
+            {
+                if (category.Key == currentTab) break;
+                index++;
+            }
+            foreach (KeyValuePair<string, RClickableTextureComponent> v in sideTabs)
+            {
+                v.Value.rightNeighborID = index * 100;
+            }
+            // change the right neighbor of scrollDown to be the tab that is currently last shown
+            scrollDown.rightNeighborID = 7001 + sideTabs.Count - 1;
+            // if scrollUp is not visible, change scrollDown.upNeighbor to be -7777
+            scrollDown.upNeighborID = scrollTrack <= 0 ? -7777 : region_scrollUp;
+            // if scrollDown is not visible, change scrollUp.downNeighbor to be -7777
+            scrollUp.downNeighborID = scrollTrack >= sideTabs.Count - 8 ? -7777 : region_scrollDown;
         }
 
         public override void snapToDefaultClickableComponent()
@@ -172,8 +360,26 @@ namespace SpecialPowerUtilities.Menus
             spuData.TexturePath = powersData.TexturePath;
             spuData.TexturePosition = powersData.TexturePosition;
             spuData.UnlockedCondition = powersData.UnlockedCondition;
-            
+
             return spuData;
+        }
+
+        public List<string> getActivePowers()
+        {
+            if (Game1.player.modData.TryGetValue("Spiderbuttons.SpecialPowerUtilities/ActivePowers", out var modData))
+            {
+                return modData.Split(',').ToList();
+            }
+            return new List<string>();
+        }
+
+        public List<string> getInactivePowers()
+        {
+            if (Game1.player.modData.TryGetValue("Spiderbuttons.SpecialPowerUtilities/InactivePowers", out var modData))
+            {
+                return modData.Split(',').ToList();
+            }
+            return new List<string>();
         }
 
         public void loadMods()
@@ -191,22 +397,23 @@ namespace SpecialPowerUtilities.Menus
             {
                 Loggers.Log("Failed to load powers data: " + ex.Message);
             }
-            
-            var cats = Game1.content.Load<Dictionary<string, CategoryData>>("SpecialPowerUtilities/Categories");
+
+            var cats = Game1.content.Load<Dictionary<string, ModSectionData>>("SpecialPowerUtilities/Categories");
             foreach (var cat in cats)
             {
-                if (!categories.ContainsKey(cat.Value.CategoryName))
+                if (!sections.ContainsKey(cat.Value.CategoryName))
                 {
-                    categories.Add(cat.Value.CategoryName, new List<List<ClickableTextureComponent>>());
-                    categoryData.Add(cat.Value.CategoryName, cat.Value);
+                    sections.Add(cat.Value.CategoryName, new List<List<ClickableTextureComponent>>());
+                    modSectionData.Add(cat.Value.CategoryName, cat.Value);
                 }
             }
+
             var powers = Game1.content.Load<Dictionary<string, SPUData>>("SpecialPowerUtilities/Powers");
             foreach (var power in powers)
             {
                 if (allPowers.TryGetValue(power.Key, out var allPower))
                 {
-                    allPower.Category = power.Value.Category;
+                    allPower.ModSection = power.Value.ModSection;
                 }
             }
         }
@@ -214,7 +421,7 @@ namespace SpecialPowerUtilities.Menus
         public void separateMods()
         {
             if (allPowers == null || allPowers.Count == 0) return;
-            
+
             int categoryWidth = 9;
             Dictionary<string, int> widthUsed = new Dictionary<string, int>();
             int baseX = base.xPositionOnScreen + IClickableMenu.borderWidth + IClickableMenu.spaceToClearSideBorder;
@@ -223,141 +430,243 @@ namespace SpecialPowerUtilities.Menus
             foreach (KeyValuePair<string, SPUData> power in allPowers)
             {
                 string whichCategory;
-                if (vanillaPowerNames.Contains(power.Key)) whichCategory = "Stardew Valley";
+                if (vanillaPowerNames.Contains(power.Key)) whichCategory = i18n.HoverText_StardewValley();
                 else
                 {
-                    whichCategory = power.Value.Category ?? Utils.TryGetModFromString(power.Key)?.Manifest.UniqueID.Split(".")[1] ?? "Miscellaneous";
+                    if (SpecialPowerUtilities.Config.ParseModNames)
+                    {
+                        whichCategory = power.Value.ModSection ??
+                                        Utils.TryGetModFromString(power.Key)?.Manifest.UniqueID.Split(".")[1] ??
+                                        i18n.HoverText_Misc();
+                    } else
+                    {
+                        whichCategory = power.Value.ModSection ?? i18n.HoverText_Misc();
+                    }
                 }
-
-                if (!categories.ContainsKey(whichCategory))
+                if (!SpecialPowerUtilities.Config.EnableMiscCategory && whichCategory == i18n.HoverText_Misc()) whichCategory = i18n.HoverText_StardewValley();
+                if (!sections.ContainsKey(whichCategory))
                 {
-                    categories.Add(whichCategory, new List<List<ClickableTextureComponent>>());
-                    categoryData.Add(whichCategory, new CategoryData()
+                    sections.Add(whichCategory, new List<List<ClickableTextureComponent>>());
+                    modSectionData.Add(whichCategory, new ModSectionData()
                     {
                         CategoryName = whichCategory,
                         IconPath = null,
                         IconPosition = new Point(0, 0)
                     });
                 }
+
                 if (!widthUsed.ContainsKey(whichCategory)) widthUsed.Add(whichCategory, 0);
                 int xPos = baseX + widthUsed[whichCategory] % categoryWidth * 76;
-                int yPos = baseY + widthUsed[whichCategory] / categoryWidth * 76; ;
+                int yPos = baseY + widthUsed[whichCategory] / categoryWidth * 76;
+                ;
                 if (yPos > base.yPositionOnScreen + height + distanceFromMenuBottomBeforeNewPage)
                 {
-                    categories[whichCategory].Add(new List<ClickableTextureComponent>());
+                    sections[whichCategory].Add(new List<ClickableTextureComponent>());
                     widthUsed[whichCategory] = 0;
                     xPos = baseX;
                     yPos = baseY;
                 }
 
-                if (!categories.ContainsKey(whichCategory))
+                if (!sections.ContainsKey(whichCategory))
                 {
-                    categories.Add(whichCategory, new List<List<ClickableTextureComponent>>());
+                    sections.Add(whichCategory, new List<List<ClickableTextureComponent>>());
                 }
-                if (categories[whichCategory].Count == 0)
+
+                if (sections[whichCategory].Count == 0)
                 {
-                    categories[whichCategory].Add(new List<ClickableTextureComponent>());
+                    sections[whichCategory].Add(new List<ClickableTextureComponent>());
                 }
-                List<ClickableTextureComponent> list = categories[whichCategory].Last();
+                // get the index of the whichCategory in the list to prepend to our ids
+                int index = 0;
+                foreach (KeyValuePair<string, List<List<ClickableTextureComponent>>>
+                    category in sections)
+                {
+                    if (category.Key == whichCategory) break;
+                    index++;
+                }
+
+                index *= 100;
+                List<ClickableTextureComponent> list = sections[whichCategory].Last();
                 bool unlocked = GameStateQuery.CheckConditions(power.Value.UnlockedCondition);
                 string name = TokenParser.ParseText(power.Value.DisplayName);
                 string description = TokenParser.ParseText(power.Value.Description);
                 Texture2D texture = Game1.content.Load<Texture2D>(power.Value.TexturePath);
-                list.Add(new ClickableTextureComponent(name, new Rectangle(xPos, yPos, 64, 64), null, description, texture, new Rectangle(power.Value.TexturePosition.X, power.Value.TexturePosition.Y, 16, 16), 4f, unlocked)
+                list.Add(new ClickableTextureComponent(name, new Rectangle(xPos, yPos, 64, 64), null, description,
+                    texture, new Rectangle(power.Value.TexturePosition.X, power.Value.TexturePosition.Y, 16, 16), 4f,
+                    unlocked)
                 {
-                    myID = list.Count,
-                    rightNeighborID = (((list.Count + 1) % categoryWidth == 0) ? (-1) : (list.Count + 1)),
-                    leftNeighborID = ((list.Count % categoryWidth == 0) ? (-1) : (list.Count - 1)),
-                    downNeighborID = ((yPos + 76 > base.yPositionOnScreen + height + distanceFromMenuBottomBeforeNewPage) ? (-7777) : (list.Count + categoryWidth)),
-                    upNeighborID = ((list.Count < categoryWidth) ? 12346 : (list.Count - categoryWidth)),
+                    myID = (index + list.Count),
+                    rightNeighborID = (((list.Count + 1) % categoryWidth == 0) ? (-1) : ((index + list.Count) + 1)),
+                    leftNeighborID = ((list.Count % categoryWidth == 0) ? (7001) : ((index + list.Count) - 1)),
+                    downNeighborID =
+                        ((yPos + 76 > base.yPositionOnScreen + height - distanceFromMenuBottomBeforeNewPage)
+                            ? (-7777)
+                            : ((index + list.Count) + categoryWidth)),
+                    upNeighborID = ((list.Count < categoryWidth) ? 12346 : ((index + list.Count) - categoryWidth)),
                     fullyImmutable = true
                 });
                 widthUsed[whichCategory]++;
             }
         }
 
-        public override void populateClickableComponentList()
+        public void switchTab(string tabToSwitchTo)
         {
-            // if (this.powers == null)
-            // {
-            //     this.powers = new List<List<ClickableTextureComponent>>();
-            //     Dictionary<string, PowersData> powersData = null;
-            //     Dictionary<string, SPUData> SPUData = new Dictionary<string, SPUData>();
-            //     try
-            //     {
-            //         powersData = DataLoader.Powers(Game1.content);
-            //     }
-            //     catch (Exception ex)
-            //     {
-            //         Loggers.Log("Failed to load powers data: " + ex.Message);
-            //     }
-            //
-            //     // convert all the powers in PowersData to SPUData objects
-            //     foreach (KeyValuePair<string, PowersData> power in powersData)
-            //     {
-            //         SPUData spuData = new SPUData(power.Value);
-            //         SPUData.Add(power.Key, spuData);
-            //     }
-            //
-            //     if (SPUData != null)
-            //     {
-            //         int collectionWidth = 9;
-            //         int widthUsed = 0;
-            //         int baseX = base.xPositionOnScreen + IClickableMenu.borderWidth +
-            //                     IClickableMenu.spaceToClearSideBorder;
-            //         int baseY = base.yPositionOnScreen + IClickableMenu.borderWidth +
-            //             IClickableMenu.spaceToClearTopBorder - 16;
-            //         foreach (KeyValuePair<string, SPUData> power in SPUData)
-            //         {
-            //             int xPos = baseX + widthUsed % collectionWidth * 76;
-            //             int yPos = baseY + widthUsed / collectionWidth * 76;
-            //             bool unlocked = GameStateQuery.CheckConditions(power.Value.UnlockedCondition);
-            //             string name = TokenParser.ParseText(power.Value.DisplayName);
-            //             string description = TokenParser.ParseText(power.Value.Description);
-            //             Texture2D texture = Game1.content.Load<Texture2D>(power.Value.TexturePath);
-            //             string category = TokenParser.ParseText(power.Value.Category);
-            //             if (this.powers.Count == 0 || yPos > base.yPositionOnScreen + base.height - 128)
-            //             {
-            //                 this.powers.Add(new List<ClickableTextureComponent>());
-            //                 widthUsed = 0;
-            //                 xPos = baseX;
-            //                 yPos = baseY;
-            //             }
-            //
-            //             List<ClickableTextureComponent> list = this.powers.Last();
-            //             list.Add(new ClickableTextureComponent(name, new Rectangle(xPos, yPos, 64, 64), null,
-            //                 description, texture,
-            //                 new Rectangle(power.Value.TexturePosition.X, power.Value.TexturePosition.Y, 16, 16), 4f,
-            //                 unlocked)
-            //             {
-            //                 myID = list.Count,
-            //                 rightNeighborID = (((list.Count + 1) % collectionWidth == 0) ? (-1) : (list.Count + 1)),
-            //                 leftNeighborID = ((list.Count % collectionWidth == 0) ? (-1) : (list.Count - 1)),
-            //                 downNeighborID = ((yPos + 76 > base.yPositionOnScreen + base.height - 128)
-            //                     ? (-7777)
-            //                     : (list.Count + collectionWidth)),
-            //                 upNeighborID = ((list.Count < collectionWidth) ? 12346 : (list.Count - collectionWidth)),
-            //                 fullyImmutable = true
-            //             });
-            //             widthUsed++;
-            //         }
-            //     }
-            // }
+            if (sideTabs.ContainsKey(tabToSwitchTo))
+            {
+                sideTabs[currentTab].bounds.X -= widthToMoveActiveTab;
+                tabIcons[currentTabIcon].bounds.X -= widthToMoveActiveTab;
+                currentTab = tabToSwitchTo;
+                currentTabIcon = tabToSwitchTo;
+                currentPage = 0;
+                sideTabs[currentTab].bounds.X += widthToMoveActiveTab;
+                tabIcons[currentTabIcon].bounds.X += widthToMoveActiveTab;
+            }
+        }
 
-            base.populateClickableComponentList();
+        protected override void customSnapBehavior(int direction, int oldRegion, int oldID)
+        {
+            base.customSnapBehavior(direction, oldRegion, oldID);
+            switch (direction)
+            {
+                case 2:
+                    if (this.currentPage > 0)
+                    {
+                        base.currentlySnappedComponent = base.getComponentWithID(region_backButton);
+                    }
+                    else if (this.currentPage == 0 && this.sections[this.currentTab].Count > 1)
+                    {
+                        base.currentlySnappedComponent = base.getComponentWithID(region_forwardButton);
+                    }
+
+                    this.backButton.upNeighborID = oldID;
+                    this.forwardButton.upNeighborID = oldID;
+                    break;
+                case 3:
+                    if (oldID == region_forwardButton && this.currentPage > 0)
+                    {
+                        base.currentlySnappedComponent = base.getComponentWithID(region_backButton);
+                    }
+
+                    break;
+                case 1:
+                    if (oldID == region_backButton && this.sections[this.currentTab].Count > this.currentPage + 1)
+                    {
+                        base.currentlySnappedComponent = base.getComponentWithID(region_forwardButton);
+                    }
+
+                    break;
+            }
+        }
+
+        public override void snapCursorToCurrentSnappedComponent()
+        {
+            if (this.currentlySnappedComponent.myID >= 7001 && this.currentlySnappedComponent.myID < 7001 + sideTabs.Count)
+            {
+                if (this.currentlySnappedComponent.myID < 7001 + scrollTrack)
+                {
+                    while (this.currentlySnappedComponent.myID < 7001 + scrollTrack)
+                    {
+                        this.currentlySnappedComponent = this.getComponentWithID(this.currentlySnappedComponent.myID + 1);
+                        Game1.setMousePosition(this.currentlySnappedComponent.bounds.Center);
+                    }
+                }
+                else if (this.currentlySnappedComponent.myID >= 7001 + scrollTrack + 8)
+                {
+                    while (this.currentlySnappedComponent.myID >= 7001 + scrollTrack + 8)
+                    {
+                        this.currentlySnappedComponent = this.getComponentWithID(this.currentlySnappedComponent.myID - 1);
+                        Game1.setMousePosition(this.currentlySnappedComponent.bounds.Center);
+                    }
+                }
+            }
+            // otherwise if we're snapped to either scrollUp or scrollDown but it shouldnt be visible, snap to the top or bottom of the tabs respectively
+            // else if (this.currentlySnappedComponent.myID == region_scrollUp && scrollTrack <= 0)
+            // {
+            //     this.currentlySnappedComponent = this.getComponentWithID(7001);
+            //     Game1.setMousePosition(this.currentlySnappedComponent.bounds.Center);
+            // }
+            // else if (this.currentlySnappedComponent.myID == region_scrollDown && scrollTrack >= sideTabs.Count - 8)
+            // {
+            //     this.currentlySnappedComponent = this.getComponentWithID(7000 + sideTabs.Count());
+            //     Game1.setMousePosition(this.currentlySnappedComponent.bounds.Center);
+            // }
+            recalculateNeighbours();
+            base.snapCursorToCurrentSnappedComponent();
         }
 
         public override void receiveLeftClick(int x, int y, bool playSound = true)
         {
-            foreach (KeyValuePair<string, ClickableTextureComponent> v in sideTabs)
+            if (scrollDown.containsPoint(x, y) && scrollTrack < sideTabs.Count - 8)
+            {
+                scrollTrack++;
+                Game1.playSound("shwip");
+                scrollDown.scale = scrollDown.baseScale;
+                for (int i = 0; i < sideTabs.Count; i++)
+                {
+                    sideTabs.Values.ElementAt(i).bounds.Y -= 64;
+                    tabIcons.Values.ElementAt(i).bounds.Y -= 64;
+                }
+
+                // if currentTab was the last tab before scrolling, we need to switch to the new last tab
+                if (currentTab == sideTabs.Keys.ElementAt(scrollTrack - 1))
+                {
+                    switchTab(sideTabs.Keys.ElementAt(scrollTrack));
+                }
+                else if (currentTab == sideTabs.Keys.ElementAt(scrollTrack + 6))
+                {
+                    switchTab(sideTabs.Keys.ElementAt(scrollTrack + 7));
+                }
+                recalculateNeighbours();
+                // if (scrollTrack >= sideTabs.Count - 8)
+                // {
+                //     this.currentlySnappedComponent = this.getComponentWithID(7000 + sideTabs.Count());
+                //     Game1.setMousePosition(this.currentlySnappedComponent.bounds.Center);
+                // }
+                return;
+            }
+
+            if (scrollUp.containsPoint(x, y) && scrollTrack > 0)
+            {
+                scrollTrack--;
+                Game1.playSound("shwip");
+                scrollUp.scale = scrollUp.baseScale;
+                for (int i = 0; i < sideTabs.Count; i++)
+                {
+                    sideTabs.Values.ElementAt(i).bounds.Y += 64;
+                    tabIcons.Values.ElementAt(i).bounds.Y += 64;
+                }
+
+                // if currentTab was the first tab before scrolling, we need to switch to the new first tab
+                if (currentTab == sideTabs.Keys.ElementAt(scrollTrack + 1))
+                {
+                    switchTab(sideTabs.Keys.ElementAt(scrollTrack));
+                }
+                else if (currentTab == sideTabs.Keys.ElementAt(scrollTrack + 8))
+                {
+                    switchTab(sideTabs.Keys.ElementAt(scrollTrack + 7));
+                }
+                recalculateNeighbours();
+                // if (scrollTrack <= 0)
+                // {
+                //     this.currentlySnappedComponent = this.getComponentWithID(7001);
+                //     Game1.setMousePosition(this.currentlySnappedComponent.bounds.Center);
+                // }
+                return;
+            }
+
+            foreach (KeyValuePair<string, RClickableTextureComponent> v in sideTabs)
             {
                 if (v.Value.containsPoint(x, y) && currentTab != v.Key)
                 {
                     Game1.playSound("smallSelect");
                     sideTabs[currentTab].bounds.X -= widthToMoveActiveTab;
+                    tabIcons[currentTabIcon].bounds.X -= widthToMoveActiveTab;
                     currentTab = v.Key;
+                    currentTabIcon = v.Key;
                     currentPage = 0;
                     v.Value.bounds.X += widthToMoveActiveTab;
+                    tabIcons[currentTabIcon].bounds.X += widthToMoveActiveTab;
+                    recalculateNeighbours();
                 }
             }
 
@@ -373,13 +682,13 @@ namespace SpecialPowerUtilities.Menus
                 }
             }
 
-            if (currentPage < categories[currentTab].Count - 1 && forwardButton.containsPoint(x, y))
+            if (currentPage < sections[currentTab].Count - 1 && forwardButton.containsPoint(x, y))
             {
                 currentPage++;
                 Game1.playSound("shwip");
                 forwardButton.scale = forwardButton.baseScale;
                 if (Game1.options.snappyMenus && Game1.options.gamepadControls &&
-                    currentPage == categories[currentTab].Count - 1)
+                    currentPage == sections[currentTab].Count - 1)
                 {
                     base.currentlySnappedComponent = backButton;
                     Game1.setMousePosition(base.currentlySnappedComponent.bounds.Center);
@@ -394,59 +703,89 @@ namespace SpecialPowerUtilities.Menus
             base.performHoverAction(x, y);
             foreach (ClickableTextureComponent tab in this.sideTabs.Values)
             {
-                if (tab.containsPoint(x, y))
+                if (tab.containsPoint(x, y) && tab.bounds.Y >= base.yPositionOnScreen + 64 * 2 &&
+                    tab.bounds.Y < base.yPositionOnScreen + 64 * 10)
                 {
                     this.hoverText = tab.hoverText;
                     return;
                 }
             }
 
-            foreach (ClickableTextureComponent c in categories[currentTab][currentPage])
+            if (sections[currentTab].Count > 0)
             {
-                if (c.containsPoint(x, y))
+                foreach (ClickableTextureComponent c in sections[currentTab][currentPage])
                 {
-                    c.scale = Math.Min(c.scale + 0.02f, c.baseScale + 0.1f);
-                    this.hoverText = (c.drawShadow ? c.name : "???");
-                    this.descriptionText = Game1.parseText(c.hoverText, Game1.smallFont,
-                        Math.Max((int)Game1.dialogueFont.MeasureString(this.hoverText).X, 320));
-                }
-                else
-                {
-                    c.scale = Math.Max(c.scale - 0.02f, c.baseScale);
+                    if (c.containsPoint(x, y))
+                    {
+                        c.scale = Math.Min(c.scale + 0.02f, c.baseScale + 0.1f);
+                        this.hoverText = (c.drawShadow ? c.name : "???");
+                        string key = allPowers.FirstOrDefault(x => TokenParser.ParseText(x.Value.DisplayName) == c.name).Key;
+                        this.descriptionText = Game1.parseText(c.hoverText, Game1.smallFont,
+                            Math.Max((int)Game1.dialogueFont.MeasureString(this.hoverText).X, 320));
+                        if (inactivePowers.Contains(key))
+                        {
+                            this.descriptionText += Game1.parseText(($"\r\n\r\n{i18n.HoverText_Inactive()}.").ToUpper(), Game1.smallFont,
+                                Math.Max((int)Game1.dialogueFont.MeasureString(this.hoverText).X, 320));
+                        }
+                    }
+                    else
+                    {
+                        c.scale = Math.Max(c.scale - 0.02f, c.baseScale);
+                    }
                 }
             }
 
             this.forwardButton.tryHover(x, y, 0.5f);
             this.backButton.tryHover(x, y, 0.5f);
+            this.scrollUp.tryHover(x, y, 0.5f);
+            this.scrollDown.tryHover(x, y, 0.5f);
         }
 
         public override void draw(SpriteBatch b)
         {
-            foreach (ClickableTextureComponent value in this.sideTabs.Values)
+            int catCount = 0;
+
+            for (int i = 0; i < this.sideTabs.Count; i++)
             {
-                value.draw(b);
+                if (i < scrollTrack) continue;
+                if (catCount < 8)
+                {
+                    this.sideTabs.Values.ElementAt(i).draw(b, -(float)Math.PI / 2.0f);
+                    this.tabIcons.Values.ElementAt(i).draw(b);
+                }
+
+                catCount++;
             }
 
-            if (this.currentPage > 0)
-            {
-                this.backButton.draw(b);
-            }
-
-            if (this.currentPage < categories[currentTab].Count - 1)
-            {
-                this.forwardButton.draw(b);
-            }
-
+            if (scrollTrack > 0) this.scrollUp.draw(b);
+            if (scrollTrack < sideTabs.Count - 8) this.scrollDown.draw(b);
             b.End();
             b.Begin(SpriteSortMode.FrontToBack, BlendState.AlphaBlend, SamplerState.PointClamp);
-            foreach (ClickableTextureComponent item in categories[currentTab][currentPage])
+            if (sections[currentTab].Count > 0)
             {
-                bool drawColor = item.drawShadow;
-                item.draw(b, drawColor ? Color.White : (Color.Black * 0.2f), 0.86f);
+                foreach (ClickableTextureComponent item in sections[currentTab][currentPage])
+                {
+                    bool drawColor = item.drawShadow;
+                    string key = allPowers.FirstOrDefault(x => TokenParser.ParseText(x.Value.DisplayName) == item.name).Key;
+                    if (!drawColor)
+                    {
+                        item.draw(b, Color.Black * 0.2f, 0.86f);
+                    }
+                    else if (inactivePowers.Contains(key))
+                    {
+                        item.draw(b, Color.DimGray * 0.4f, 0.86f);
+                    }
+                    else
+                    {
+                        item.draw(b, Color.White, 0.86f);
+                    }
+                    
+                }
             }
 
             b.End();
             b.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp);
+
             if (!this.descriptionText.Equals("") && this.hoverText != "???")
             {
                 IClickableMenu.drawHoverText(b, this.descriptionText, Game1.smallFont, 0, 0, -1, this.hoverText);

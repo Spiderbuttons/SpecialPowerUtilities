@@ -2,7 +2,7 @@
 
 namespace SpecialPowerUtilities.Models;
 
-public class CategoryData
+public class ModSectionData
 {
     public string CategoryName;
     public string IconPath;

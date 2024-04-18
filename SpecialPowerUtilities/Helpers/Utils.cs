@@ -15,7 +15,7 @@ public static class Utils
         {
             if (i != 0) modId += '_' + parts[i];
 
-            IModInfo? mod = ModEntry.ModHelper.ModRegistry.Get(modId);
+            IModInfo? mod = SpecialPowerUtilities.ModHelper.ModRegistry.Get(modId);
             if (mod != null) return mod;
         }
 

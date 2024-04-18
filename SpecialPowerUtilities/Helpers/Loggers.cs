@@ -6,7 +6,7 @@ namespace SpecialPowerUtilities.Helpers;
 
 public static class Loggers
 {
-    public static void Log(string message, LogLevel level = LogLevel.Debug) => ModEntry.ModMonitor.Log(message, level);
+    public static void Log(string message, LogLevel level = LogLevel.Debug) => SpecialPowerUtilities.ModMonitor.Log(message, level);
     
     public static void ILCode(List<CodeInstruction> code)
     {

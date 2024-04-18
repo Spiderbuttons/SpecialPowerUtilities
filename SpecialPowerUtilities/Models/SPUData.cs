@@ -7,7 +7,7 @@ namespace SpecialPowerUtilities.Models;
 public class SPUData
 {
     [ContentSerializer(Optional = true)]
-    public string Category = null;
+    public string ModSection = null;
     
     [ContentSerializer(Optional = true)]
     public int PlacementIndex = -1;
@@ -20,6 +20,7 @@ public class SPUData
     [ContentSerializer(Optional = true)]
     public string Description = "";
     
+    [ContentSerializer(Optional = true)]
     public string TexturePath;
     
     public Point TexturePosition;
