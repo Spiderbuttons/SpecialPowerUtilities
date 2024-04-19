@@ -51,7 +51,7 @@ internal class UnavailablePowers
 
     public bool RequiresInput()
     {
-        return true;
+        return false;
     }
 
     public bool CanHaveMultipleValues(string input = null)
@@ -78,14 +78,15 @@ internal class UnavailablePowers
         return false;
     }
 
-    public IEnumerable<string> GetValues(string? input)
+    public IEnumerable<string> GetValues(string input)
     {
-        if (input == null) yield break;
-        Loggers.Log(input);
-        string farmerToCheck = input.Split(' ')[0];
-        if (farmerToCheck == "Current")
+        string farmerToCheck = input?.Split(' ')[0];
+        if (farmerToCheck is null or "Current")
         {
-            yield return string.Join(",", currentPlayerPowers);
+            foreach (var power in currentPlayerPowers)
+            {
+                yield return power;
+            }
         }
         else if (farmerToCheck == "Any")
         {

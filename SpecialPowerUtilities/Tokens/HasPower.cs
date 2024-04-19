@@ -55,7 +55,7 @@ internal class HasPower
 
     public bool RequiresInput()
     {
-        return true;
+        return false;
     }
 
     public bool CanHaveMultipleValues(string input = null)
@@ -83,21 +83,19 @@ internal class HasPower
 
     public IEnumerable<string> GetValues(string? input)
     {
-        if (input == null) yield break;
-        string farmerToCheck = input.Split(' ')[0];
-        string powerToCheck = input.Split(' ')[1];
-        if (farmerToCheck == "Current")
+        string farmerToCheck = input?.Split(' ')[0];
+        if (farmerToCheck is null or "Current")
         {
-            if (currentPlayerPowers.Contains(powerToCheck))
+            foreach (var power in currentPlayerPowers)
             {
-                yield return "true";
+                yield return power;
             }
         }
         else if (farmerToCheck == "Any")
         {
-            if (allPlayerPowers.Contains(powerToCheck))
+            foreach (var power in allPlayerPowers)
             {
-                yield return "true";
+                yield return power;
             }
         }
         
