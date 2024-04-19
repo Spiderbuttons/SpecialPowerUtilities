@@ -41,16 +41,17 @@ namespace SpecialPowerUtilities
             Helper.Events.Content.AssetRequested += OnAssetRequested;
             Helper.Events.GameLoop.GameLaunched += OnGameLaunched;
 
-            TriggerActionManager.RegisterAction("Spiderbuttons.SpecialPowerUtilities/SetPowerInactive",
-                PowerTriggerActions.SetPowerInactive);
-            TriggerActionManager.RegisterAction("Spiderbuttons.SpecialPowerUtilities/SetPowerActive",
-                PowerTriggerActions.SetPowerActive);
+            TriggerActionManager.RegisterAction("Spiderbuttons.SpecialPowerUtilities/SetPowerUnavailable",
+                PowerTriggerActions.SetPowerUnavailable);
+            TriggerActionManager.RegisterAction("Spiderbuttons.SpecialPowerUtilities/SetPowerAvailable",
+                PowerTriggerActions.SetPowerAvailable);
         }
         
         private void OnGameLaunched(object sender, GameLaunchedEventArgs e)
         {
             CP = Helper.ModRegistry.GetApi<IContentPatcherAPI>("Pathoschild.ContentPatcher");
             CP?.RegisterToken(ModManifest, "HasPower", new HasPower());
+            CP?.RegisterToken(ModManifest, "UnavailablePowers", new UnavailablePowers());
             
             var configMenu = Helper.ModRegistry.GetApi<IGenericModConfigMenuApi>("spacechase0.GenericModConfigMenu");
             if (configMenu != null) Config.SetupConfig(configMenu, ModManifest, Helper);
@@ -59,8 +60,6 @@ namespace SpecialPowerUtilities
         private void OnAssetRequested(object sender, AssetRequestedEventArgs e)
         {
             Helper.GameContent.InvalidateCache("SpecialPowerUtilities/Powers");
-            // if (e.NameWithoutLocale.IsEquivalentTo("SpecialPowerUtilities/Powers"))
-            //     e.LoadFrom(() => new Dictionary<string, SPUData>(), AssetLoadPriority.High);
             if (e.NameWithoutLocale.IsEquivalentTo("Spiderbuttons.SpecialPowerUtilities/PowerSections"))
                 e.LoadFrom(() => new Dictionary<string, ModSectionData>(), AssetLoadPriority.High);
         }

@@ -8,9 +8,9 @@ namespace SpecialPowerUtilities;
 
 public class PowerTriggerActions
 {
-    public static bool SetPowerInactive(string[] args, TriggerActionContext context, out string error)
+    public static bool SetPowerUnavailable(string[] args, TriggerActionContext context, out string error)
     {
-        //SetPowerInactive <who> <powerID>
+        //SetPowerUnavailable <who> <powerID>
 
         if (!ArgUtility.TryGet(args, 1, out var who, out error) || !ArgUtility.TryGet(args, 2, out var powerID, out error))
         {
@@ -21,11 +21,11 @@ public class PowerTriggerActions
         {
             try
             {
-                PowerState.deactivatePower(target, powerID);
+                PowerState.setPowerUnavailable(target, powerID);
             }
             catch (Exception ex)
             {
-                Loggers.Log("Error in SetPowerInactive: " + ex.Message, LogLevel.Error);
+                Loggers.Log("Error in SetPowerUnavailable: " + ex.Message, LogLevel.Error);
                 return false;
             }
 
@@ -34,9 +34,9 @@ public class PowerTriggerActions
         return success;
     }
     
-    public static bool SetPowerActive(string[] args, TriggerActionContext context, out string error)
+    public static bool SetPowerAvailable(string[] args, TriggerActionContext context, out string error)
     {
-        //SetPowerActive <who> <powerID>
+        //SetPowerAvailable <who> <powerID>
 
         if (!ArgUtility.TryGet(args, 1, out var who, out error) || !ArgUtility.TryGet(args, 2, out var powerID, out error))
         {
@@ -47,11 +47,11 @@ public class PowerTriggerActions
         {
             try
             {
-                PowerState.activatePower(target, powerID);
+                PowerState.setPowerAvailable(target, powerID);
             }
             catch (Exception ex)
             {
-                Loggers.Log("Error in SetPowerActive: " + ex.Message, LogLevel.Error);
+                Loggers.Log("Error in SetPowerAvailable: " + ex.Message, LogLevel.Error);
                 return false;
             }
 

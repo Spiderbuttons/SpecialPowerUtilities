@@ -5,7 +5,7 @@ namespace SpecialPowerUtilities.Config;
 
 public sealed class ModConfig
 {
-    public bool EnableNewPowersTab { get; set; } = true;
+    public bool EnableCategories { get; set; } = true;
     
     public bool ParseModNames { get; set; } = true;
     
@@ -18,7 +18,7 @@ public sealed class ModConfig
 
     private void Init()
     {
-        this.EnableNewPowersTab = true;
+        this.EnableCategories = true;
         this.ParseModNames = true;
         this.EnableMiscCategory = true;
     }
@@ -35,8 +35,8 @@ public sealed class ModConfig
             mod: ModManifest,
             name: i18n.Config_EnableCategories_Name,
             tooltip: i18n.Config_EnableCategories_Description,
-            getValue: () => this.EnableNewPowersTab,
-            setValue: value => this.EnableNewPowersTab = value
+            getValue: () => this.EnableCategories,
+            setValue: value => this.EnableCategories = value
         );
         
         configMenu.AddBoolOption(

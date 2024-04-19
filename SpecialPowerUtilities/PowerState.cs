@@ -5,35 +5,29 @@ using StardewValley;
 namespace SpecialPowerUtilities;
 
 public static class PowerState
-{
-    private static List<string> activePowers;
-    private static List<string> inactivePowers;
-
-    static PowerState()
+{ 
+    public static List<string> getUnavailablePowers(Farmer who)
     {
-        inactivePowers = getInactivePowers();
-    }
-
-    public static List<string> getInactivePowers()
-    {
-        if (Game1.player.modData.TryGetValue("Spiderbuttons.SpecialPowerUtilities/InactivePowers", out var modData))
+        if (who.modData.TryGetValue("Spiderbuttons.SpecialPowerUtilities/UnavailablePowers", out var modData))
         {
             return modData.Split(',').ToList();
         }
         return new List<string>();
     }
     
-    public static void deactivatePower(Farmer player, string power)
+    public static void setPowerUnavailable(Farmer player, string power)
     {
-        if (inactivePowers.Contains(power)) return;
-        inactivePowers.Add(power);
-        player.modData["Spiderbuttons.SpecialPowerUtilities/InactivePowers"] = string.Join(",", inactivePowers);
+        var unavailablePowers = getUnavailablePowers(player);
+        if (unavailablePowers.Contains(power)) return;
+        unavailablePowers.Add(power);
+        player.modData["Spiderbuttons.SpecialPowerUtilities/UnavailablePowers"] = string.Join(",", unavailablePowers);
     }
     
-    public static void activatePower(Farmer player, string power)
+    public static void setPowerAvailable(Farmer player, string power)
     {
-        if (!inactivePowers.Contains(power)) return;
-        inactivePowers.Remove(power);
-        player.modData["Spiderbuttons.SpecialPowerUtilities/InactivePowers"] = string.Join(",", inactivePowers);
+        var unavailablePowers = getUnavailablePowers(player);
+        if (!unavailablePowers.Contains(power)) return;
+        unavailablePowers.Remove(power);
+        player.modData["Spiderbuttons.SpecialPowerUtilities/UnavailablePowers"] = string.Join(",", unavailablePowers);
     }
 }

@@ -79,9 +79,9 @@ namespace SpecialPowerUtilities.Menus
 
         Dictionary<string, PowersData> allPowers = new Dictionary<string, PowersData>();
 
-        private List<string> activePowers;
+        private List<string> availablePowers;
 
-        private List<string> inactivePowers;
+        private List<string> unavailablePowers;
 
         Texture2D BlankTab = SpecialPowerUtilities.ModHelper.ModContent.Load<Texture2D>("assets/TabIcons/BlankTab.png");
         
@@ -147,8 +147,8 @@ namespace SpecialPowerUtilities.Menus
 
             this.sections.Add(i18n.HoverText_StardewValley(), new List<List<ClickableTextureComponent>>());
 
-            activePowers = getActivePowers();
-            inactivePowers = getInactivePowers();
+            availablePowers = getAvailablePowers();
+            unavailablePowers = getUnavailablePowers();
 
             loadMods();
             separateMods();
@@ -368,9 +368,9 @@ namespace SpecialPowerUtilities.Menus
             this.snapCursorToCurrentSnappedComponent();
         }
 
-        public List<string> getActivePowers()
+        public List<string> getAvailablePowers()
         {
-            if (Game1.player.modData.TryGetValue("Spiderbuttons.SpecialPowerUtilities/ActivePowers", out var modData))
+            if (Game1.player.modData.TryGetValue("Spiderbuttons.SpecialPowerUtilities/AvailablePowers", out var modData))
             {
                 return modData.Split(',').ToList();
             }
@@ -378,9 +378,9 @@ namespace SpecialPowerUtilities.Menus
             return new List<string>();
         }
 
-        public List<string> getInactivePowers()
+        public List<string> getUnavailablePowers()
         {
-            if (Game1.player.modData.TryGetValue("Spiderbuttons.SpecialPowerUtilities/InactivePowers", out var modData))
+            if (Game1.player.modData.TryGetValue("Spiderbuttons.SpecialPowerUtilities/UnavailablePowers", out var modData))
             {
                 return modData.Split(',').ToList();
             }
@@ -403,6 +403,7 @@ namespace SpecialPowerUtilities.Menus
                 Loggers.Log("Failed to load powers data: " + ex.Message);
             }
 
+            if (!SpecialPowerUtilities.Config.EnableCategories) return;
             var cats = Game1.content.Load<Dictionary<string, ModSectionData>>(
                 "Spiderbuttons.SpecialPowerUtilities/PowerSections");
             foreach (var cat in cats)
@@ -446,6 +447,9 @@ namespace SpecialPowerUtilities.Menus
 
                 if (!SpecialPowerUtilities.Config.EnableMiscCategory && whichCategory == i18n.HoverText_Misc())
                     whichCategory = i18n.HoverText_StardewValley();
+                
+                if (!SpecialPowerUtilities.Config.EnableCategories) whichCategory = i18n.HoverText_StardewValley();
+                
                 if (!sections.ContainsKey(whichCategory))
                 {
                     sections.Add(whichCategory, new List<List<ClickableTextureComponent>>());
@@ -584,6 +588,12 @@ namespace SpecialPowerUtilities.Menus
                 }
             }
 
+            if (this.currentlySnappedComponent.myID == 7001 && this.sideTabs.Count() == 1)
+            {
+                this.currentlySnappedComponent = this.getComponentWithID(0);
+                Game1.setMousePosition(this.currentlySnappedComponent.bounds.Center);
+            }
+
             recalculateNeighbours();
             base.snapCursorToCurrentSnappedComponent();
         }
@@ -638,22 +648,6 @@ namespace SpecialPowerUtilities.Menus
                 return;
             }
 
-            foreach (KeyValuePair<string, RClickableTextureComponent> v in sideTabs)
-            {
-                if (v.Value.containsPoint(x, y) && currentTab != v.Key)
-                {
-                    Game1.playSound("smallSelect");
-                    sideTabs[currentTab].bounds.X -= widthToMoveActiveTab;
-                    tabIcons[currentTabIcon].bounds.X -= widthToMoveActiveTab;
-                    currentTab = v.Key;
-                    currentTabIcon = v.Key;
-                    currentPage = 0;
-                    v.Value.bounds.X += widthToMoveActiveTab;
-                    tabIcons[currentTabIcon].bounds.X += widthToMoveActiveTab;
-                    recalculateNeighbours();
-                }
-            }
-
             if (currentPage > 0 && backButton.containsPoint(x, y))
             {
                 currentPage--;
@@ -678,6 +672,23 @@ namespace SpecialPowerUtilities.Menus
                     Game1.setMousePosition(base.currentlySnappedComponent.bounds.Center);
                 }
             }
+            
+            if (!SpecialPowerUtilities.Config.EnableCategories || this.sideTabs.Count() == 1) return;
+            foreach (KeyValuePair<string, RClickableTextureComponent> v in sideTabs)
+            {
+                if (v.Value.containsPoint(x, y) && currentTab != v.Key)
+                {
+                    Game1.playSound("smallSelect");
+                    sideTabs[currentTab].bounds.X -= widthToMoveActiveTab;
+                    tabIcons[currentTabIcon].bounds.X -= widthToMoveActiveTab;
+                    currentTab = v.Key;
+                    currentTabIcon = v.Key;
+                    currentPage = 0;
+                    v.Value.bounds.X += widthToMoveActiveTab;
+                    tabIcons[currentTabIcon].bounds.X += widthToMoveActiveTab;
+                    recalculateNeighbours();
+                }
+            }
         }
 
         public override void performHoverAction(int x, int y)
@@ -685,15 +696,6 @@ namespace SpecialPowerUtilities.Menus
             this.hoverText = "";
             this.descriptionText = "";
             base.performHoverAction(x, y);
-            foreach (ClickableTextureComponent tab in this.sideTabs.Values)
-            {
-                if (tab.containsPoint(x, y) && tab.bounds.Y >= base.yPositionOnScreen + 64 * 2 &&
-                    tab.bounds.Y < base.yPositionOnScreen + 64 * 10)
-                {
-                    this.hoverText = tab.hoverText;
-                    return;
-                }
-            }
 
             if (sections[currentTab].Count > 0)
             {
@@ -707,9 +709,9 @@ namespace SpecialPowerUtilities.Menus
                             .Key;
                         this.descriptionText = Game1.parseText(c.hoverText, Game1.smallFont,
                             Math.Max((int)Game1.dialogueFont.MeasureString(this.hoverText).X, 320));
-                        if (inactivePowers.Contains(key))
+                        if (unavailablePowers.Contains(key))
                         {
-                            this.descriptionText += Game1.parseText(($"\r\n\r\n{i18n.HoverText_Inactive()}.").ToUpper(),
+                            this.descriptionText += Game1.parseText(($"\r\n\r\n{i18n.HoverText_Unavailable()}.").ToUpper(),
                                 Game1.smallFont,
                                 Math.Max((int)Game1.dialogueFont.MeasureString(this.hoverText).X, 320));
                         }
@@ -725,14 +727,25 @@ namespace SpecialPowerUtilities.Menus
             this.backButton.tryHover(x, y, 0.5f);
             this.scrollUp.tryHover(x, y, 0.5f);
             this.scrollDown.tryHover(x, y, 0.5f);
+            
+            if (!SpecialPowerUtilities.Config.EnableCategories || this.sideTabs.Count() == 1) return;
+            foreach (ClickableTextureComponent tab in this.sideTabs.Values)
+            {
+                if (tab.containsPoint(x, y) && tab.bounds.Y >= base.yPositionOnScreen + 64 * 2 &&
+                    tab.bounds.Y < base.yPositionOnScreen + 64 * 10)
+                {
+                    this.hoverText = tab.hoverText;
+                    return;
+                }
+            }
         }
 
         public override void draw(SpriteBatch b)
         {
             int catCount = 0;
-
             for (int i = 0; i < this.sideTabs.Count; i++)
             {
+                if (!SpecialPowerUtilities.Config.EnableCategories || this.sideTabs.Count() == 1) break;
                 if (i < scrollTrack) continue;
                 if (catCount < 8)
                 {
@@ -742,7 +755,7 @@ namespace SpecialPowerUtilities.Menus
 
                 catCount++;
             }
-
+            
             if (scrollTrack > 0) this.scrollUp.draw(b);
             if (scrollTrack < sideTabs.Count - 8) this.scrollDown.draw(b);
             b.End();
@@ -758,7 +771,7 @@ namespace SpecialPowerUtilities.Menus
                     {
                         item.draw(b, Color.Black * 0.2f, 0.86f);
                     }
-                    else if (inactivePowers.Contains(key))
+                    else if (unavailablePowers.Contains(key))
                     {
                         item.draw(b, Color.DimGray * 0.4f, 0.86f);
                     }
