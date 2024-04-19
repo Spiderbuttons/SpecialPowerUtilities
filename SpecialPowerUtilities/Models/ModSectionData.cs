@@ -4,7 +4,6 @@ namespace SpecialPowerUtilities.Models;
 
 public class ModSectionData
 {
-    public string CategoryName;
+    public string SectionName;
     public string IconPath;
-    public Point IconPosition;
 }

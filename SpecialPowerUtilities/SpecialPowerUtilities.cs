@@ -59,9 +59,9 @@ namespace SpecialPowerUtilities
         private void OnAssetRequested(object sender, AssetRequestedEventArgs e)
         {
             Helper.GameContent.InvalidateCache("SpecialPowerUtilities/Powers");
-            if (e.NameWithoutLocale.IsEquivalentTo("SpecialPowerUtilities/Powers"))
-                e.LoadFrom(() => new Dictionary<string, SPUData>(), AssetLoadPriority.High);
-            if (e.NameWithoutLocale.IsEquivalentTo("SpecialPowerUtilities/Categories"))
+            // if (e.NameWithoutLocale.IsEquivalentTo("SpecialPowerUtilities/Powers"))
+            //     e.LoadFrom(() => new Dictionary<string, SPUData>(), AssetLoadPriority.High);
+            if (e.NameWithoutLocale.IsEquivalentTo("Spiderbuttons.SpecialPowerUtilities/PowerSections"))
                 e.LoadFrom(() => new Dictionary<string, ModSectionData>(), AssetLoadPriority.High);
         }
         

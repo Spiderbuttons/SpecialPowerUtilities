@@ -34,8 +34,6 @@ namespace SpecialPowerUtilities.Menus
             "Mastery_Combat"
         };
 
-        public static int modID = 21526;
-
         public int region_forwardButton = 707;
 
         public int region_backButton = 706;
@@ -79,29 +77,40 @@ namespace SpecialPowerUtilities.Menus
 
         private int scrollTrack = 0;
 
-        Dictionary<string, SPUData> allPowers = new Dictionary<string, SPUData>();
+        Dictionary<string, PowersData> allPowers = new Dictionary<string, PowersData>();
 
         private List<string> activePowers;
-        
+
         private List<string> inactivePowers;
 
         Texture2D BlankTab = SpecialPowerUtilities.ModHelper.ModContent.Load<Texture2D>("assets/TabIcons/BlankTab.png");
-        Texture2D CatIcon = SpecialPowerUtilities.ModHelper.ModContent.Load<Texture2D>("assets/TabIcons/Cat.png");
-        Texture2D ConcernedApeIcon = SpecialPowerUtilities.ModHelper.ModContent.Load<Texture2D>("assets/TabIcons/ConcernedApe.png");
-        Texture2D CrystalIcon = SpecialPowerUtilities.ModHelper.ModContent.Load<Texture2D>("assets/TabIcons/Crystal.png");
-        Texture2D GiftIcon = SpecialPowerUtilities.ModHelper.ModContent.Load<Texture2D>("assets/TabIcons/Gift.png");
-        Texture2D MysteryIcon = SpecialPowerUtilities.ModHelper.ModContent.Load<Texture2D>("assets/TabIcons/Mystery.png");
-        Texture2D PufferIcon = SpecialPowerUtilities.ModHelper.ModContent.Load<Texture2D>("assets/TabIcons/Puffer.png");
-        Texture2D StardropIcon = SpecialPowerUtilities.ModHelper.ModContent.Load<Texture2D>("assets/TabIcons/Stardrop.png");
-        Texture2D TicketIcon = SpecialPowerUtilities.ModHelper.ModContent.Load<Texture2D>("assets/TabIcons/Ticket.png");
         
+        Texture2D CatIcon = SpecialPowerUtilities.ModHelper.ModContent.Load<Texture2D>("assets/TabIcons/Cat.png");
+
+        Texture2D ConcernedApeIcon =
+            SpecialPowerUtilities.ModHelper.ModContent.Load<Texture2D>("assets/TabIcons/ConcernedApe.png");
+
+        Texture2D CrystalIcon =
+            SpecialPowerUtilities.ModHelper.ModContent.Load<Texture2D>("assets/TabIcons/Crystal.png");
+
+        Texture2D GiftIcon = SpecialPowerUtilities.ModHelper.ModContent.Load<Texture2D>("assets/TabIcons/Gift.png");
+
+        Texture2D MysteryIcon =
+            SpecialPowerUtilities.ModHelper.ModContent.Load<Texture2D>("assets/TabIcons/Mystery.png");
+
+        Texture2D PufferIcon = SpecialPowerUtilities.ModHelper.ModContent.Load<Texture2D>("assets/TabIcons/Puffer.png");
+
+        Texture2D StardropIcon =
+            SpecialPowerUtilities.ModHelper.ModContent.Load<Texture2D>("assets/TabIcons/Stardrop.png");
+
+        Texture2D TicketIcon = SpecialPowerUtilities.ModHelper.ModContent.Load<Texture2D>("assets/TabIcons/Ticket.png");
+
         List<Texture2D> BackupIcons = new List<Texture2D>();
 
         IModHelper Helper = SpecialPowerUtilities.ModHelper;
 
         public SPUTab(int x, int y, int width, int height) : base(x, y, width, height)
         {
-            // fill BackupIcons with every icon except ConcernedApe
             BackupIcons.Add(CatIcon);
             BackupIcons.Add(CrystalIcon);
             BackupIcons.Add(GiftIcon);
@@ -109,10 +118,11 @@ namespace SpecialPowerUtilities.Menus
             BackupIcons.Add(PufferIcon);
             BackupIcons.Add(StardropIcon);
             BackupIcons.Add(TicketIcon);
-            
+
             this.sideTabs.Add(i18n.HoverText_StardewValley(), new RClickableTextureComponent(0.ToString() ?? "",
                 new Rectangle(base.xPositionOnScreen - 48 + widthToMoveActiveTab,
-                    base.yPositionOnScreen + 64 * (2 + this.sideTabs.Count), 64, 64), "", i18n.HoverText_StardewValley(),
+                    base.yPositionOnScreen + 64 * (2 + this.sideTabs.Count), 64, 64), "",
+                i18n.HoverText_StardewValley(),
                 Game1.mouseCursors,
                 new Rectangle(16, 368, 16, 16), 4f)
             {
@@ -124,9 +134,11 @@ namespace SpecialPowerUtilities.Menus
             });
             this.tabIcons.Add(i18n.HoverText_StardewValley(), new ClickableTextureComponent(0.ToString() ?? "",
                 new Rectangle(base.xPositionOnScreen - 32 + widthToMoveActiveTab,
-                    base.yPositionOnScreen + 64 * (2 + this.tabIcons.Count) + 10, 64, 64), "", i18n.HoverText_StardewValley(),
+                    base.yPositionOnScreen + 64 * (2 + this.tabIcons.Count) + 10, 64, 64), "",
+                i18n.HoverText_StardewValley(),
                 ConcernedApeIcon,
-                new Rectangle(0, 0, ConcernedApeIcon.Width, ConcernedApeIcon.Height), 64f / ConcernedApeIcon.Width / 1.5f)
+                new Rectangle(0, 0, ConcernedApeIcon.Width, ConcernedApeIcon.Height),
+                64f / ConcernedApeIcon.Width / 1.5f)
             {
                 myID = -7777 + tabIcons.Count,
                 downNeighborID = -99998,
@@ -137,7 +149,7 @@ namespace SpecialPowerUtilities.Menus
 
             activePowers = getActivePowers();
             inactivePowers = getInactivePowers();
-            
+
             loadMods();
             separateMods();
 
@@ -161,6 +173,7 @@ namespace SpecialPowerUtilities.Menus
                 {
                     ModdedIcon = PufferIcon;
                 }
+
                 if (tab.Key == i18n.HoverText_Misc())
                 {
                     this.sideTabs.Add(tab.Key, new RClickableTextureComponent(0.ToString() ?? "",
@@ -198,7 +211,7 @@ namespace SpecialPowerUtilities.Menus
                     this.sideTabs.Add(tab.Key, new RClickableTextureComponent(0.ToString() ?? "",
                         new Rectangle(base.xPositionOnScreen - 48,
                             base.yPositionOnScreen + 64 * (2 + this.sideTabs.Count), 64, 64), "",
-                        modSectionData[tab.Key].CategoryName,
+                        modSectionData[tab.Key].SectionName,
                         Game1.mouseCursors,
                         new Rectangle(16, 368, 16, 16), 4f)
                     {
@@ -211,7 +224,7 @@ namespace SpecialPowerUtilities.Menus
                     this.tabIcons.Add(tab.Key, new ClickableTextureComponent(0.ToString() ?? "",
                         new Rectangle(base.xPositionOnScreen - 32,
                             base.yPositionOnScreen + 64 * (2 + this.tabIcons.Count) + 10, 64, 64), "",
-                        modSectionData[tab.Key].CategoryName,
+                        modSectionData[tab.Key].SectionName,
                         ModdedIcon,
                         new Rectangle(0, 0, ModdedIcon.Width, ModdedIcon.Height), 64f / ModdedIcon.Width / 1.5f)
                     {
@@ -294,13 +307,12 @@ namespace SpecialPowerUtilities.Menus
                     }
                 }
             }
-            
+
             recalculateNeighbours();
         }
 
         public void recalculateNeighbours()
         {
-            // set the left neighbor id of all sidetabs to -7777 if there are no scrollbars (if sideTabs.count < 8)
             if (sideTabs.Count < 8)
             {
                 foreach (KeyValuePair<string, RClickableTextureComponent> v in sideTabs)
@@ -314,18 +326,23 @@ namespace SpecialPowerUtilities.Menus
                 {
                     if (i < scrollTrack + 4)
                     {
-                        sideTabs.Values.ElementAt(i).leftNeighborID = scrollTrack > 0 ? region_scrollUp : scrollTrack >= sideTabs.Count - 8 ? -7777 : region_scrollDown;
+                        sideTabs.Values.ElementAt(i).leftNeighborID = scrollTrack > 0 ? region_scrollUp :
+                            scrollTrack >= sideTabs.Count - 8 ? -7777 : region_scrollDown;
                     }
                     else
                     {
-                        sideTabs.Values.ElementAt(i).leftNeighborID = scrollTrack < sideTabs.Count - 8 ? region_scrollDown : scrollTrack <= 0 ? -7777 : region_scrollUp;
+                        sideTabs.Values.ElementAt(i).leftNeighborID = scrollTrack < sideTabs.Count - 8
+                            ? region_scrollDown
+                            : scrollTrack <= 0
+                                ? -7777
+                                : region_scrollUp;
                     }
                 }
-                // change the rightneighbors of the scroll buttons too
+
                 scrollUp.rightNeighborID = 7001;
                 scrollDown.rightNeighborID = 1007 + scrollTrack;
             }
-            // change the rightneighborid of all the sidetabs according to what page we're on
+
             int index = 0;
             foreach (KeyValuePair<string, List<List<ClickableTextureComponent>>>
                          category in sections)
@@ -333,15 +350,14 @@ namespace SpecialPowerUtilities.Menus
                 if (category.Key == currentTab) break;
                 index++;
             }
+
             foreach (KeyValuePair<string, RClickableTextureComponent> v in sideTabs)
             {
                 v.Value.rightNeighborID = index * 100;
             }
-            // change the right neighbor of scrollDown to be the tab that is currently last shown
+
             scrollDown.rightNeighborID = 7001 + sideTabs.Count - 1;
-            // if scrollUp is not visible, change scrollDown.upNeighbor to be -7777
             scrollDown.upNeighborID = scrollTrack <= 0 ? -7777 : region_scrollUp;
-            // if scrollDown is not visible, change scrollUp.downNeighbor to be -7777
             scrollUp.downNeighborID = scrollTrack >= sideTabs.Count - 8 ? -7777 : region_scrollDown;
         }
 
@@ -352,24 +368,13 @@ namespace SpecialPowerUtilities.Menus
             this.snapCursorToCurrentSnappedComponent();
         }
 
-        public SPUData convertToSPU(PowersData powersData)
-        {
-            SPUData spuData = new SPUData();
-            spuData.DisplayName = powersData.DisplayName;
-            spuData.Description = powersData.Description;
-            spuData.TexturePath = powersData.TexturePath;
-            spuData.TexturePosition = powersData.TexturePosition;
-            spuData.UnlockedCondition = powersData.UnlockedCondition;
-
-            return spuData;
-        }
-
         public List<string> getActivePowers()
         {
             if (Game1.player.modData.TryGetValue("Spiderbuttons.SpecialPowerUtilities/ActivePowers", out var modData))
             {
                 return modData.Split(',').ToList();
             }
+
             return new List<string>();
         }
 
@@ -379,6 +384,7 @@ namespace SpecialPowerUtilities.Menus
             {
                 return modData.Split(',').ToList();
             }
+
             return new List<string>();
         }
 
@@ -389,8 +395,7 @@ namespace SpecialPowerUtilities.Menus
                 var powersData = DataLoader.Powers(Game1.content);
                 foreach (KeyValuePair<string, PowersData> power in powersData)
                 {
-                    SPUData spuData = convertToSPU(power.Value);
-                    allPowers.Add(power.Key, spuData);
+                    allPowers.Add(power.Key, power.Value);
                 }
             }
             catch (Exception ex)
@@ -398,22 +403,14 @@ namespace SpecialPowerUtilities.Menus
                 Loggers.Log("Failed to load powers data: " + ex.Message);
             }
 
-            var cats = Game1.content.Load<Dictionary<string, ModSectionData>>("SpecialPowerUtilities/Categories");
+            var cats = Game1.content.Load<Dictionary<string, ModSectionData>>(
+                "Spiderbuttons.SpecialPowerUtilities/PowerSections");
             foreach (var cat in cats)
             {
-                if (!sections.ContainsKey(cat.Value.CategoryName))
+                if (!sections.ContainsKey(cat.Key))
                 {
-                    sections.Add(cat.Value.CategoryName, new List<List<ClickableTextureComponent>>());
-                    modSectionData.Add(cat.Value.CategoryName, cat.Value);
-                }
-            }
-
-            var powers = Game1.content.Load<Dictionary<string, SPUData>>("SpecialPowerUtilities/Powers");
-            foreach (var power in powers)
-            {
-                if (allPowers.TryGetValue(power.Key, out var allPower))
-                {
-                    allPower.ModSection = power.Value.ModSection;
+                    sections.Add(cat.Key, new List<List<ClickableTextureComponent>>());
+                    modSectionData.Add(cat.Key, cat.Value);
                 }
             }
         }
@@ -427,31 +424,35 @@ namespace SpecialPowerUtilities.Menus
             int baseX = base.xPositionOnScreen + IClickableMenu.borderWidth + IClickableMenu.spaceToClearSideBorder;
             int baseY = base.yPositionOnScreen + IClickableMenu.borderWidth + IClickableMenu.spaceToClearTopBorder - 16;
 
-            foreach (KeyValuePair<string, SPUData> power in allPowers)
+            foreach (KeyValuePair<string, PowersData> power in allPowers)
             {
                 string whichCategory;
                 if (vanillaPowerNames.Contains(power.Key)) whichCategory = i18n.HoverText_StardewValley();
+                else if (power.Value.CustomFields != null && power.Value.CustomFields.TryGetValue(
+                             "Spiderbuttons.SpecialPowerUtilities/Section",
+                             out var section) && section is string value)
+                {
+                    whichCategory = value;
+                }
+                else if (SpecialPowerUtilities.Config.ParseModNames)
+                {
+                    whichCategory = Utils.TryGetModFromString(power.Key)?.Manifest.UniqueID.Split(".")[1] ??
+                                    i18n.HoverText_Misc();
+                }
                 else
                 {
-                    if (SpecialPowerUtilities.Config.ParseModNames)
-                    {
-                        whichCategory = power.Value.ModSection ??
-                                        Utils.TryGetModFromString(power.Key)?.Manifest.UniqueID.Split(".")[1] ??
-                                        i18n.HoverText_Misc();
-                    } else
-                    {
-                        whichCategory = power.Value.ModSection ?? i18n.HoverText_Misc();
-                    }
+                    whichCategory = i18n.HoverText_Misc();
                 }
-                if (!SpecialPowerUtilities.Config.EnableMiscCategory && whichCategory == i18n.HoverText_Misc()) whichCategory = i18n.HoverText_StardewValley();
+
+                if (!SpecialPowerUtilities.Config.EnableMiscCategory && whichCategory == i18n.HoverText_Misc())
+                    whichCategory = i18n.HoverText_StardewValley();
                 if (!sections.ContainsKey(whichCategory))
                 {
                     sections.Add(whichCategory, new List<List<ClickableTextureComponent>>());
                     modSectionData.Add(whichCategory, new ModSectionData()
                     {
-                        CategoryName = whichCategory,
+                        SectionName = whichCategory.Contains('.') ? whichCategory.Split(".")[1] : whichCategory,
                         IconPath = null,
-                        IconPosition = new Point(0, 0)
                     });
                 }
 
@@ -476,10 +477,10 @@ namespace SpecialPowerUtilities.Menus
                 {
                     sections[whichCategory].Add(new List<ClickableTextureComponent>());
                 }
-                // get the index of the whichCategory in the list to prepend to our ids
+
                 int index = 0;
                 foreach (KeyValuePair<string, List<List<ClickableTextureComponent>>>
-                    category in sections)
+                             category in sections)
                 {
                     if (category.Key == whichCategory) break;
                     index++;
@@ -560,13 +561,15 @@ namespace SpecialPowerUtilities.Menus
 
         public override void snapCursorToCurrentSnappedComponent()
         {
-            if (this.currentlySnappedComponent.myID >= 7001 && this.currentlySnappedComponent.myID < 7001 + sideTabs.Count)
+            if (this.currentlySnappedComponent.myID >= 7001 &&
+                this.currentlySnappedComponent.myID < 7001 + sideTabs.Count)
             {
                 if (this.currentlySnappedComponent.myID < 7001 + scrollTrack)
                 {
                     while (this.currentlySnappedComponent.myID < 7001 + scrollTrack)
                     {
-                        this.currentlySnappedComponent = this.getComponentWithID(this.currentlySnappedComponent.myID + 1);
+                        this.currentlySnappedComponent =
+                            this.getComponentWithID(this.currentlySnappedComponent.myID + 1);
                         Game1.setMousePosition(this.currentlySnappedComponent.bounds.Center);
                     }
                 }
@@ -574,22 +577,13 @@ namespace SpecialPowerUtilities.Menus
                 {
                     while (this.currentlySnappedComponent.myID >= 7001 + scrollTrack + 8)
                     {
-                        this.currentlySnappedComponent = this.getComponentWithID(this.currentlySnappedComponent.myID - 1);
+                        this.currentlySnappedComponent =
+                            this.getComponentWithID(this.currentlySnappedComponent.myID - 1);
                         Game1.setMousePosition(this.currentlySnappedComponent.bounds.Center);
                     }
                 }
             }
-            // otherwise if we're snapped to either scrollUp or scrollDown but it shouldnt be visible, snap to the top or bottom of the tabs respectively
-            // else if (this.currentlySnappedComponent.myID == region_scrollUp && scrollTrack <= 0)
-            // {
-            //     this.currentlySnappedComponent = this.getComponentWithID(7001);
-            //     Game1.setMousePosition(this.currentlySnappedComponent.bounds.Center);
-            // }
-            // else if (this.currentlySnappedComponent.myID == region_scrollDown && scrollTrack >= sideTabs.Count - 8)
-            // {
-            //     this.currentlySnappedComponent = this.getComponentWithID(7000 + sideTabs.Count());
-            //     Game1.setMousePosition(this.currentlySnappedComponent.bounds.Center);
-            // }
+
             recalculateNeighbours();
             base.snapCursorToCurrentSnappedComponent();
         }
@@ -607,7 +601,6 @@ namespace SpecialPowerUtilities.Menus
                     tabIcons.Values.ElementAt(i).bounds.Y -= 64;
                 }
 
-                // if currentTab was the last tab before scrolling, we need to switch to the new last tab
                 if (currentTab == sideTabs.Keys.ElementAt(scrollTrack - 1))
                 {
                     switchTab(sideTabs.Keys.ElementAt(scrollTrack));
@@ -616,12 +609,8 @@ namespace SpecialPowerUtilities.Menus
                 {
                     switchTab(sideTabs.Keys.ElementAt(scrollTrack + 7));
                 }
+
                 recalculateNeighbours();
-                // if (scrollTrack >= sideTabs.Count - 8)
-                // {
-                //     this.currentlySnappedComponent = this.getComponentWithID(7000 + sideTabs.Count());
-                //     Game1.setMousePosition(this.currentlySnappedComponent.bounds.Center);
-                // }
                 return;
             }
 
@@ -636,7 +625,6 @@ namespace SpecialPowerUtilities.Menus
                     tabIcons.Values.ElementAt(i).bounds.Y += 64;
                 }
 
-                // if currentTab was the first tab before scrolling, we need to switch to the new first tab
                 if (currentTab == sideTabs.Keys.ElementAt(scrollTrack + 1))
                 {
                     switchTab(sideTabs.Keys.ElementAt(scrollTrack));
@@ -645,12 +633,8 @@ namespace SpecialPowerUtilities.Menus
                 {
                     switchTab(sideTabs.Keys.ElementAt(scrollTrack + 7));
                 }
+
                 recalculateNeighbours();
-                // if (scrollTrack <= 0)
-                // {
-                //     this.currentlySnappedComponent = this.getComponentWithID(7001);
-                //     Game1.setMousePosition(this.currentlySnappedComponent.bounds.Center);
-                // }
                 return;
             }
 
@@ -719,12 +703,14 @@ namespace SpecialPowerUtilities.Menus
                     {
                         c.scale = Math.Min(c.scale + 0.02f, c.baseScale + 0.1f);
                         this.hoverText = (c.drawShadow ? c.name : "???");
-                        string key = allPowers.FirstOrDefault(x => TokenParser.ParseText(x.Value.DisplayName) == c.name).Key;
+                        string key = allPowers.FirstOrDefault(x => TokenParser.ParseText(x.Value.DisplayName) == c.name)
+                            .Key;
                         this.descriptionText = Game1.parseText(c.hoverText, Game1.smallFont,
                             Math.Max((int)Game1.dialogueFont.MeasureString(this.hoverText).X, 320));
                         if (inactivePowers.Contains(key))
                         {
-                            this.descriptionText += Game1.parseText(($"\r\n\r\n{i18n.HoverText_Inactive()}.").ToUpper(), Game1.smallFont,
+                            this.descriptionText += Game1.parseText(($"\r\n\r\n{i18n.HoverText_Inactive()}.").ToUpper(),
+                                Game1.smallFont,
                                 Math.Max((int)Game1.dialogueFont.MeasureString(this.hoverText).X, 320));
                         }
                     }
@@ -766,7 +752,8 @@ namespace SpecialPowerUtilities.Menus
                 foreach (ClickableTextureComponent item in sections[currentTab][currentPage])
                 {
                     bool drawColor = item.drawShadow;
-                    string key = allPowers.FirstOrDefault(x => TokenParser.ParseText(x.Value.DisplayName) == item.name).Key;
+                    string key = allPowers.FirstOrDefault(x => TokenParser.ParseText(x.Value.DisplayName) == item.name)
+                        .Key;
                     if (!drawColor)
                     {
                         item.draw(b, Color.Black * 0.2f, 0.86f);
@@ -779,7 +766,6 @@ namespace SpecialPowerUtilities.Menus
                     {
                         item.draw(b, Color.White, 0.86f);
                     }
-                    
                 }
             }
 
