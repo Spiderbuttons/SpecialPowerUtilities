@@ -6,6 +6,7 @@ using ContentPatcher;
 using GenericModConfigMenu;
 using Microsoft.Xna.Framework;
 using HarmonyLib;
+using Microsoft.Xna.Framework.Graphics;
 using SpecialPowerUtilities.Config;
 using SpecialPowerUtilities.Helpers;
 using SpecialPowerUtilities.Menus;
@@ -13,6 +14,8 @@ using SpecialPowerUtilities.Models;
 using SpecialPowerUtilities.Tokens;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
+using StardewValley;
+using StardewValley.Delegates;
 using StardewValley.Menus;
 using StardewValley.Triggers;
 
@@ -45,6 +48,11 @@ namespace SpecialPowerUtilities
                 PowerTriggerActions.SetPowerUnavailable);
             TriggerActionManager.RegisterAction("Spiderbuttons.SpecialPowerUtilities/SetPowerAvailable",
                 PowerTriggerActions.SetPowerAvailable);
+            GameStateQuery.Register("PLAYER_HAS_POWER", (string[] query, GameStateQueryContext ctx) =>
+            {
+                var powersData = DataLoader.Powers(Game1.content);
+                return powersData.ContainsKey(query[2]) && GameStateQuery.CheckConditions(powersData[query[2]].UnlockedCondition, null, ctx.Player);
+            });
         }
         
         private void OnGameLaunched(object sender, GameLaunchedEventArgs e)

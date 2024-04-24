@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Dynamic;
 using System.IO.MemoryMappedFiles;
 using System.Linq;
@@ -77,7 +79,9 @@ namespace SpecialPowerUtilities.Menus
 
         private int scrollTrack = 0;
 
-        Dictionary<string, PowersData> allPowers = new Dictionary<string, PowersData>();
+        Dictionary<string, PowersData> allPowersDict = new Dictionary<string, PowersData>();
+        
+        OrderedDictionary allPowers = new OrderedDictionary();
 
         private List<string> availablePowers;
 
@@ -106,8 +110,6 @@ namespace SpecialPowerUtilities.Menus
         Texture2D TicketIcon = SpecialPowerUtilities.ModHelper.ModContent.Load<Texture2D>("assets/TabIcons/Ticket.png");
 
         List<Texture2D> BackupIcons = new List<Texture2D>();
-
-        IModHelper Helper = SpecialPowerUtilities.ModHelper;
 
         public SPUTab(int x, int y, int width, int height) : base(x, y, width, height)
         {
@@ -425,19 +427,22 @@ namespace SpecialPowerUtilities.Menus
             int baseX = base.xPositionOnScreen + IClickableMenu.borderWidth + IClickableMenu.spaceToClearSideBorder;
             int baseY = base.yPositionOnScreen + IClickableMenu.borderWidth + IClickableMenu.spaceToClearTopBorder - 16;
 
-            foreach (KeyValuePair<string, PowersData> power in allPowers)
+            Loggers.Log("Wawa");
+            foreach (DictionaryEntry power in allPowers)
             {
+                PowersData pData = power.Value as PowersData;
+                if (pData == null) continue;
                 string whichCategory;
                 if (vanillaPowerNames.Contains(power.Key)) whichCategory = i18n.HoverText_StardewValley();
-                else if (power.Value.CustomFields != null && power.Value.CustomFields.TryGetValue(
+                else if (pData.CustomFields != null && pData.CustomFields.TryGetValue(
                              "Spiderbuttons.SpecialPowerUtilities/Section",
                              out var section) && section is string value)
                 {
-                    whichCategory = value;
+                    whichCategory = value == "Stardew Valley" ? i18n.HoverText_StardewValley() : value;
                 }
                 else if (SpecialPowerUtilities.Config.ParseModNames)
                 {
-                    whichCategory = Utils.TryGetModFromString(power.Key)?.Manifest.UniqueID.Split(".")[1] ??
+                    whichCategory = Utils.TryGetModFromString(power.Key as string)?.Manifest.UniqueID ??
                                     i18n.HoverText_Misc();
                 }
                 else
@@ -492,12 +497,12 @@ namespace SpecialPowerUtilities.Menus
 
                 index *= 100;
                 List<ClickableTextureComponent> list = sections[whichCategory].Last();
-                bool unlocked = GameStateQuery.CheckConditions(power.Value.UnlockedCondition);
-                string name = TokenParser.ParseText(power.Value.DisplayName);
-                string description = TokenParser.ParseText(power.Value.Description);
-                Texture2D texture = Game1.content.Load<Texture2D>(power.Value.TexturePath);
+                bool unlocked = GameStateQuery.CheckConditions(pData.UnlockedCondition);
+                string name = TokenParser.ParseText(pData.DisplayName);
+                string description = TokenParser.ParseText(pData.Description);
+                Texture2D texture = Game1.content.Load<Texture2D>(pData.TexturePath);
                 list.Add(new ClickableTextureComponent(name, new Rectangle(xPos, yPos, 64, 64), null, description,
-                    texture, new Rectangle(power.Value.TexturePosition.X, power.Value.TexturePosition.Y, 16, 16), 4f,
+                    texture, new Rectangle(pData.TexturePosition.X, pData.TexturePosition.Y, 16, 16), 4f,
                     unlocked)
                 {
                     myID = (index + list.Count),
@@ -705,8 +710,18 @@ namespace SpecialPowerUtilities.Menus
                     {
                         c.scale = Math.Min(c.scale + 0.02f, c.baseScale + 0.1f);
                         this.hoverText = (c.drawShadow ? c.name : "???");
-                        string key = allPowers.FirstOrDefault(x => TokenParser.ParseText(x.Value.DisplayName) == c.name)
-                            .Key;
+                        // string key = allPowersDict.FirstOrDefault(x => TokenParser.ParseText(x.Value.DisplayName) == c.name)
+                        //     .Key;
+                        string key = null;
+                        foreach (DictionaryEntry power in allPowers)
+                        {
+                            PowersData pData = power.Value as PowersData;
+                            if (TokenParser.ParseText(pData.DisplayName) == c.name)
+                            {
+                                key = power.Key as string;
+                                break;
+                            }
+                        }
                         this.descriptionText = Game1.parseText(c.hoverText, Game1.smallFont,
                             Math.Max((int)Game1.dialogueFont.MeasureString(this.hoverText).X, 320));
                         if (unavailablePowers.Contains(key))
@@ -765,8 +780,18 @@ namespace SpecialPowerUtilities.Menus
                 foreach (ClickableTextureComponent item in sections[currentTab][currentPage])
                 {
                     bool drawColor = item.drawShadow;
-                    string key = allPowers.FirstOrDefault(x => TokenParser.ParseText(x.Value.DisplayName) == item.name)
-                        .Key;
+                    // string key = allPowersDict.FirstOrDefault(x => TokenParser.ParseText(x.Value.DisplayName) == item.name)
+                    //     .Key;
+                    string key = null;
+                    foreach (DictionaryEntry power in allPowers)
+                    {
+                        PowersData pData = power.Value as PowersData;
+                        if (TokenParser.ParseText(pData.DisplayName) == item.name)
+                        {
+                            key = power.Key as string;
+                            break;
+                        }
+                    }
                     if (!drawColor)
                     {
                         item.draw(b, Color.Black * 0.2f, 0.86f);
