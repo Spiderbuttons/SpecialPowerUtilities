@@ -45,9 +45,9 @@ namespace SpecialPowerUtilities
             Helper.Events.GameLoop.GameLaunched += OnGameLaunched;
             Helper.Events.GameLoop.SaveLoaded += OnSaveLoaded;
 
-            TriggerActionManager.RegisterAction("Spiderbuttons.SpecialPowerUtilities/SetPowerUnavailable",
+            TriggerActionManager.RegisterAction("Spiderbuttons.SpecialPowerUtilities/Actions/SetPowerUnavailable",
                 PowerTriggerActions.SetPowerUnavailable);
-            TriggerActionManager.RegisterAction("Spiderbuttons.SpecialPowerUtilities/SetPowerAvailable",
+            TriggerActionManager.RegisterAction("Spiderbuttons.SpecialPowerUtilities/Actions/SetPowerAvailable",
                 PowerTriggerActions.SetPowerAvailable);
             GameStateQuery.Register("PLAYER_HAS_POWER", (string[] query, GameStateQueryContext ctx) =>
             {

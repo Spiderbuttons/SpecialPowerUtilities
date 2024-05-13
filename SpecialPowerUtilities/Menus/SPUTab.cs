@@ -2,17 +2,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.Dynamic;
-using System.IO.MemoryMappedFiles;
 using System.Linq;
-using System.Reflection;
-using System.Text.Json.Nodes;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using HarmonyLib;
-using Microsoft.Xna.Framework.Input;
 using SpecialPowerUtilities.Components;
-using SpecialPowerUtilities.Config;
 using StardewValley;
 using StardewModdingAPI;
 using SpecialPowerUtilities.Helpers;
@@ -20,7 +13,6 @@ using SpecialPowerUtilities.Models;
 using StardewValley.Menus;
 using StardewValley.GameData.Powers;
 using StardewValley.TokenizableStrings;
-using Object = System.Object;
 
 namespace SpecialPowerUtilities.Menus
 {
@@ -764,8 +756,6 @@ namespace SpecialPowerUtilities.Menus
                     {
                         c.scale = Math.Min(c.scale + 0.02f, c.baseScale + 0.1f);
                         this.hoverText = (c.drawShadow ? c.name : "???");
-                        // string key = allPowersDict.FirstOrDefault(x => TokenParser.ParseText(x.Value.DisplayName) == c.name)
-                        //     .Key;
                         string key = null;
                         foreach (DictionaryEntry power in allPowers)
                         {
@@ -834,8 +824,6 @@ namespace SpecialPowerUtilities.Menus
                 foreach (ClickableTextureComponent item in sections[currentTab][currentPage])
                 {
                     bool drawColor = item.drawShadow;
-                    // string key = allPowersDict.FirstOrDefault(x => TokenParser.ParseText(x.Value.DisplayName) == item.name)
-                    //     .Key;
                     string key = null;
                     foreach (DictionaryEntry power in allPowers)
                     {
