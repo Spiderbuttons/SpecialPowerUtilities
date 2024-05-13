@@ -8,7 +8,7 @@ public static class PowerState
 { 
     public static List<string> getUnavailablePowers(Farmer who)
     {
-        if (who.modData.TryGetValue("Spiderbuttons.SpecialPowerUtilities/UnavailablePowers", out var modData))
+        if (who.modData.TryGetValue("Spiderbuttons.SpecialPowerUtilities/Powers/UnavailablePowers", out var modData))
         {
             return modData.Split(',').ToList();
         }
@@ -20,7 +20,7 @@ public static class PowerState
         var unavailablePowers = getUnavailablePowers(player);
         if (unavailablePowers.Contains(power)) return;
         unavailablePowers.Add(power);
-        player.modData["Spiderbuttons.SpecialPowerUtilities/UnavailablePowers"] = string.Join(",", unavailablePowers);
+        player.modData["Spiderbuttons.SpecialPowerUtilities/Powers/UnavailablePowers"] = string.Join(",", unavailablePowers);
     }
     
     public static void setPowerAvailable(Farmer player, string power)
@@ -28,6 +28,6 @@ public static class PowerState
         var unavailablePowers = getUnavailablePowers(player);
         if (!unavailablePowers.Contains(power)) return;
         unavailablePowers.Remove(power);
-        player.modData["Spiderbuttons.SpecialPowerUtilities/UnavailablePowers"] = string.Join(",", unavailablePowers);
+        player.modData["Spiderbuttons.SpecialPowerUtilities/Powers/UnavailablePowers"] = string.Join(",", unavailablePowers);
     }
 }

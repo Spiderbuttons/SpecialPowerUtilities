@@ -6,6 +6,7 @@ using System.Dynamic;
 using System.IO.MemoryMappedFiles;
 using System.Linq;
 using System.Reflection;
+using System.Text.Json.Nodes;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using HarmonyLib;
@@ -78,10 +79,10 @@ namespace SpecialPowerUtilities.Menus
         private string hoverText = "";
 
         private int scrollTrack = 0;
-
-        Dictionary<string, PowersData> allPowersDict = new Dictionary<string, PowersData>();
         
         OrderedDictionary allPowers = new OrderedDictionary();
+        
+        List<KeyValuePair<string, object>> powerPlacements = new();
 
         private List<string> availablePowers;
 
@@ -149,10 +150,10 @@ namespace SpecialPowerUtilities.Menus
 
             this.sections.Add(i18n.HoverText_StardewValley(), new List<List<ClickableTextureComponent>>());
 
-            availablePowers = getAvailablePowers();
-            unavailablePowers = getUnavailablePowers();
+            unavailablePowers = PowerState.getUnavailablePowers(Game1.player);
 
-            loadMods();
+            loadPowers();
+            reorderPowers();
             separateMods();
 
             if (sections.ContainsKey(i18n.HoverText_Misc()))
@@ -369,28 +370,82 @@ namespace SpecialPowerUtilities.Menus
             base.currentlySnappedComponent = base.getComponentWithID(0);
             this.snapCursorToCurrentSnappedComponent();
         }
-
-        public List<string> getAvailablePowers()
+        
+        public int getPowerIndex(string power)
         {
-            if (Game1.player.modData.TryGetValue("Spiderbuttons.SpecialPowerUtilities/AvailablePowers", out var modData))
+            int index = 0;
+            foreach (DictionaryEntry powerData in allPowers)
             {
-                return modData.Split(',').ToList();
+                if (powerData.Key as string == power) return index;
+                index++;
             }
 
-            return new List<string>();
+            return -1;
         }
 
-        public List<string> getUnavailablePowers()
+        public void reorderPowers()
         {
-            if (Game1.player.modData.TryGetValue("Spiderbuttons.SpecialPowerUtilities/UnavailablePowers", out var modData))
+            foreach (DictionaryEntry power in allPowers)
             {
-                return modData.Split(',').ToList();
+                PowersData pData = power.Value as PowersData;
+                if (pData == null) continue;
+                if (pData.CustomFields != null && pData.CustomFields.TryGetValue("Spiderbuttons.SpecialPowerUtilities/Placement/ToPosition", out var placementData) && placementData is string placementVal)
+                {
+                    if (placementVal.Equals("Top")) powerPlacements.Add(new KeyValuePair<string, object>(power.Key as string, 0));
+                    else if (placementVal.Equals("Bottom")) powerPlacements.Add(new KeyValuePair<string, object>(power.Key as string, -1));
+                    else if (int.TryParse(placementVal, out var placementInt))
+                    {
+                        powerPlacements.Add(new KeyValuePair<string, object>(power.Key as string, placementInt));
+                    } else
+                    {
+                        Loggers.Log("Invalid placement value for power " + power.Key + ": " + placementVal, LogLevel.Warn);
+                    }
+                } else if (pData.CustomFields != null && pData.CustomFields.TryGetValue("Spiderbuttons.SpecialPowerUtilities/Placement/BeforeID", out var beforeData) && beforeData is string beforeVal)
+                {
+                    powerPlacements.Add(new KeyValuePair<string, object>(power.Key as string, new KeyValuePair<string, object>("Before", beforeVal)));
+                } else if (pData.CustomFields != null && pData.CustomFields.TryGetValue("Spiderbuttons.SpecialPowerUtilities/Placement/AfterID", out var afterData) && afterData is string afterVal)
+                {
+                    powerPlacements.Add(new KeyValuePair<string, object>(power.Key as string, new KeyValuePair<string, object>("After", afterVal)));
+                }
             }
-
-            return new List<string>();
+            
+            foreach (var placement in powerPlacements)
+            {
+                string power = placement.Key;
+                if (placement.Value is int position)
+                {
+                    if (allPowers.Contains(power))
+                    {
+                        if (position > allPowers.Count)
+                        {
+                            position = -1;
+                        }
+                        var powerData = allPowers[power];
+                        allPowers.Remove(power);
+                        allPowers.Insert(position == -1 ? allPowers.Count : position, power, powerData);
+                    }
+                } else if (placement.Value is KeyValuePair<string, object> beforeOrAfter)
+                {
+                    string beforeOrAfterPower = beforeOrAfter.Value as string;
+                    if (allPowers.Contains(power) && allPowers.Contains(beforeOrAfterPower))
+                    {
+                        var powerData = allPowers[power];
+                        allPowers.Remove(power);
+                        int index = getPowerIndex(beforeOrAfterPower);
+                        if (beforeOrAfter.Key == "Before")
+                        {
+                            allPowers.Insert(index, power, powerData);
+                        }
+                        else
+                        {
+                            allPowers.Insert(index + 1, power, powerData);
+                        }
+                    }
+                }
+            }
         }
 
-        public void loadMods()
+        public void loadPowers()
         {
             try
             {
@@ -426,8 +481,7 @@ namespace SpecialPowerUtilities.Menus
             Dictionary<string, int> widthUsed = new Dictionary<string, int>();
             int baseX = base.xPositionOnScreen + IClickableMenu.borderWidth + IClickableMenu.spaceToClearSideBorder;
             int baseY = base.yPositionOnScreen + IClickableMenu.borderWidth + IClickableMenu.spaceToClearTopBorder - 16;
-
-            Loggers.Log("Wawa");
+            
             foreach (DictionaryEntry power in allPowers)
             {
                 PowersData pData = power.Value as PowersData;
@@ -436,9 +490,9 @@ namespace SpecialPowerUtilities.Menus
                 if (vanillaPowerNames.Contains(power.Key)) whichCategory = i18n.HoverText_StardewValley();
                 else if (pData.CustomFields != null && pData.CustomFields.TryGetValue(
                              "Spiderbuttons.SpecialPowerUtilities/Section",
-                             out var section) && section is string value)
+                             out var section) && section is string catVal)
                 {
-                    whichCategory = value == "Stardew Valley" ? i18n.HoverText_StardewValley() : value;
+                    whichCategory = catVal == "Stardew Valley" ? i18n.HoverText_StardewValley() : catVal;
                 }
                 else if (SpecialPowerUtilities.Config.ParseModNames)
                 {

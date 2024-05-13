@@ -43,6 +43,7 @@ namespace SpecialPowerUtilities
             Helper.Events.Display.MenuChanged += OnMenuChange;
             Helper.Events.Content.AssetRequested += OnAssetRequested;
             Helper.Events.GameLoop.GameLaunched += OnGameLaunched;
+            Helper.Events.GameLoop.SaveLoaded += OnSaveLoaded;
 
             TriggerActionManager.RegisterAction("Spiderbuttons.SpecialPowerUtilities/SetPowerUnavailable",
                 PowerTriggerActions.SetPowerUnavailable);
@@ -65,21 +66,25 @@ namespace SpecialPowerUtilities
             if (configMenu != null) Config.SetupConfig(configMenu, ModManifest, Helper);
         }
         
+        private void OnSaveLoaded(object sender, SaveLoadedEventArgs e)
+        {
+            RecipeBook.GrantRecipesAgain();
+        }
+        
         private void OnAssetRequested(object sender, AssetRequestedEventArgs e)
         {
-            Helper.GameContent.InvalidateCache("SpecialPowerUtilities/Powers");
             if (e.NameWithoutLocale.IsEquivalentTo("Spiderbuttons.SpecialPowerUtilities/PowerSections"))
                 e.LoadFrom(() => new Dictionary<string, ModSectionData>(), AssetLoadPriority.High);
         }
         
         private void OnMenuChange(object sender, MenuChangedEventArgs e)
         {
-            if (e.NewMenu is not GameMenu menu)
+            if (e.NewMenu is not GameMenu menu || Config.UseVanillaMenu)
                 return;
             int powersTabIndex = 0;
             for (int i = 0; i < menu.pages.Count; i++)
             {
-                if (menu.pages[i] is not PowersTab powersTab)
+                if (menu.pages[i] is not PowersTab && menu.pages[i] is not SPUTab)
                     continue;
                 powersTabIndex = i;
                 break;

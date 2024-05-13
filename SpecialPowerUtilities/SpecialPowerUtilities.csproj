@@ -20,6 +20,8 @@
   
   <PropertyGroup>
    <TranslationClassBuilder_ClassName>i18n</TranslationClassBuilder_ClassName>
+   <TranslationClassBuilder_AddGetByKey>true</TranslationClassBuilder_AddGetByKey>
+   <TranslationClassBuilder_AddKeyMap>true</TranslationClassBuilder_AddKeyMap>
   </PropertyGroup>
 
   <ItemGroup>
@@ -29,7 +31,6 @@
 
   <ItemGroup>
     <Folder Include="Assets\" />
-    <Folder Include="Patches\" />
   </ItemGroup>
   
   <ItemGroup> 

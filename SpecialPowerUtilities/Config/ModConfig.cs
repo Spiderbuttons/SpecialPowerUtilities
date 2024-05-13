@@ -10,6 +10,8 @@ public sealed class ModConfig
     public bool ParseModNames { get; set; } = true;
     
     public bool EnableMiscCategory { get; set; } = true;
+    
+    public bool UseVanillaMenu { get; set; } = false;
 
     public ModConfig()
     {
@@ -21,6 +23,7 @@ public sealed class ModConfig
         this.EnableCategories = true;
         this.ParseModNames = true;
         this.EnableMiscCategory = true;
+        this.UseVanillaMenu = false;
     }
 
     public void SetupConfig(IGenericModConfigMenuApi configMenu, IManifest ModManifest, IModHelper Helper)
@@ -53,6 +56,14 @@ public sealed class ModConfig
             tooltip: i18n.Config_EnableMiscCategory_Description,
             getValue: () => this.EnableMiscCategory,
             setValue: value => this.EnableMiscCategory = value
+        );
+        
+        configMenu.AddBoolOption(
+            mod: ModManifest,
+            name: i18n.Config_UseVanillaMenu_Name,
+            tooltip: i18n.Config_UseVanillaMenu_Description,
+            getValue: () => this.UseVanillaMenu,
+            setValue: value => this.UseVanillaMenu = value
         );
     }
 }
