@@ -73,9 +73,11 @@ namespace SpecialPowerUtilities
 
         private void OnAssetRequested(object sender, AssetRequestedEventArgs e)
         {
-            if (e.NameWithoutLocale.IsEquivalentTo("Spiderbuttons.SpecialPowerUtilities/PowerTabs") || e.NameWithoutLocale.IsEquivalentTo("Spiderbuttons.SpecialPowerUtilities/PowerSections"))
-
-        e.LoadFrom(() => new Dictionary<string, ModSectionData>(), AssetLoadPriority.High);
+            if (e.NameWithoutLocale.IsEquivalentTo("Spiderbuttons.SpecialPowerUtilities/PowerTabs") ||
+                e.NameWithoutLocale.IsEquivalentTo("Spiderbuttons.SpecialPowerUtilities/PowerSections"))
+            {
+                e.LoadFrom(() => new Dictionary<string, ModSectionData>(), AssetLoadPriority.High);
+            }
         }
         
         private void OnMenuChange(object sender, MenuChangedEventArgs e)

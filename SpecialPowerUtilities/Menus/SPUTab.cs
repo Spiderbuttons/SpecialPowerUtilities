@@ -203,10 +203,12 @@ namespace SpecialPowerUtilities.Menus
                         ModdedIcon = Game1.content.Load<Texture2D>(modSectionData[tab.Key].IconPath);
                     }
 
+                    string hText = modSectionData[tab.Key].TabID ?? modSectionData[tab.Key].SectionName;
+
                     this.sideTabs.Add(tab.Key, new RClickableTextureComponent(0.ToString() ?? "",
                         new Rectangle(base.xPositionOnScreen - 48,
                             base.yPositionOnScreen + 64 * (2 + this.sideTabs.Count), 64, 64), "",
-                        modSectionData[tab.Key].TabID,
+                        hText,
                         Game1.mouseCursors,
                         new Rectangle(16, 368, 16, 16), 4f)
                     {
@@ -219,7 +221,7 @@ namespace SpecialPowerUtilities.Menus
                     this.tabIcons.Add(tab.Key, new ClickableTextureComponent(0.ToString() ?? "",
                         new Rectangle(base.xPositionOnScreen - 32,
                             base.yPositionOnScreen + 64 * (2 + this.tabIcons.Count) + 10, 64, 64), "",
-                        modSectionData[tab.Key].TabID,
+                        hText,
                         ModdedIcon,
                         new Rectangle(0, 0, ModdedIcon.Width, ModdedIcon.Height), 64f / ModdedIcon.Width / 1.5f)
                     {
@@ -482,6 +484,8 @@ namespace SpecialPowerUtilities.Menus
                 PowersData pData = power.Value as PowersData;
                 if (pData == null) continue;
                 string whichCategory;
+                string parsedID = Utils.TryGetModFromString(power.Key as string)?.Manifest.UniqueID ??
+                    i18n.HoverText_Misc();
                 if (vanillaPowerNames.Contains(power.Key)) whichCategory = i18n.HoverText_StardewValley();
                 else if (pData.CustomFields != null && pData.CustomFields.TryGetValue(
                              "Spiderbuttons.SpecialPowerUtilities/Tab",
@@ -489,10 +493,15 @@ namespace SpecialPowerUtilities.Menus
                 {
                     whichCategory = catVal == "Stardew Valley" ? i18n.HoverText_StardewValley() : catVal;
                 }
-                else if (SpecialPowerUtilities.Config.ParseModNames)
+                else if (pData.CustomFields != null && pData.CustomFields.TryGetValue(
+                             "Spiderbuttons.SpecialPowerUtilities/Section",
+                             out var sectionOBS) && sectionOBS is string catValOBS)
                 {
-                    whichCategory = Utils.TryGetModFromString(power.Key as string)?.Manifest.UniqueID ??
-                                    i18n.HoverText_Misc();
+                    whichCategory = catValOBS == "Stardew Valley" ? i18n.HoverText_StardewValley() : catValOBS;
+                }
+                else if (SpecialPowerUtilities.Config.ParseModNames || sections.ContainsKey(parsedID))
+                {
+                    whichCategory = parsedID;
                 }
                 else
                 {
@@ -796,7 +805,7 @@ namespace SpecialPowerUtilities.Menus
                 if (tab.containsPoint(x, y) && tab.bounds.Y >= base.yPositionOnScreen + 64 * 2 &&
                     tab.bounds.Y < base.yPositionOnScreen + 64 * 10)
                 {
-                    this.hoverText = tab.hoverText;
+                    this.hoverText = tab.hoverText ?? "String not found!";
                     return;
                 }
             }
@@ -854,7 +863,7 @@ namespace SpecialPowerUtilities.Menus
 
             b.End();
             b.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp);
-
+            
             if (!this.descriptionText.Equals("") && this.hoverText != "???")
             {
                 IClickableMenu.drawHoverText(b, this.descriptionText, Game1.smallFont, 0, 0, -1, this.hoverText);
