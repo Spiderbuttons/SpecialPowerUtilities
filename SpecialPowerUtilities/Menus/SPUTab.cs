@@ -203,7 +203,7 @@ namespace SpecialPowerUtilities.Menus
                         ModdedIcon = Game1.content.Load<Texture2D>(modSectionData[tab.Key].IconPath);
                     }
 
-                    string hText = modSectionData[tab.Key].TabID ?? modSectionData[tab.Key].SectionName;
+                    string hText = modSectionData[tab.Key].TabDisplayName ?? modSectionData[tab.Key].SectionName;
 
                     this.sideTabs.Add(tab.Key, new RClickableTextureComponent(0.ToString() ?? "",
                         new Rectangle(base.xPositionOnScreen - 48,
@@ -518,7 +518,7 @@ namespace SpecialPowerUtilities.Menus
                     sections.Add(whichCategory, new List<List<ClickableTextureComponent>>());
                     modSectionData.Add(whichCategory, new ModSectionData()
                     {
-                        TabID = whichCategory.Contains('.') ? whichCategory.Split(".")[1] : whichCategory,
+                        TabDisplayName = whichCategory.Contains('.') ? whichCategory.Split(".")[1] : whichCategory,
                         IconPath = null,
                     });
                 }

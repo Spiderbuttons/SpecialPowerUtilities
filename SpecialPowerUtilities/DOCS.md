@@ -17,7 +17,7 @@ If you _would_ like to specify which tab your modded powers are placed in and wh
     "Target": "Spiderbuttons.SpecialPowerUtilities/PowerTabs",  
     "Entries": {  
         "{{ModId}}": { // It's important that this is your Mod Id!
-            "TabID": "Example Power Mod",  
+            "TabDisplayName": "Example Power Mod",  
             "IconPath": "Mods/{{ModId}}/TabIcon"  
         }  
     }
