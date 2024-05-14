@@ -23,6 +23,8 @@ If you _would_ like to specify which tab your modded powers are placed in and wh
   }  
 }
 ```
+> You must use yout ModId as the ID for your PowerTabs entry, as this determines which tab modded powers are potentially automatically placed into. However, if you have both a Content Patcher component and a C# component in your mod, you can use the ModId of either one. If doing so causes your powers to have a different prefix, however, you will need to manually assign them to your tab.
+
 If your modded powers are prefixed with your mod ID as mentioned, then there is nothing else you need to do. They will be placed into your new tab automagically. If this is the only part of Special Power Utilities that you make use of, then your powers will function as normal even if users do not have Special Power Utilities installed.
 
 Do note that if your powers are _not_ prefixed with your mod ID, or if you have no modded powers at all, this will lead to an empty tab in the Special Items & Powers menu. **This includes any powers that are disabled via Content Patcher `When` conditions, as they are considered not loaded at all.** An empty tab won't break anything, but it will look weird and likely be reported as a bug by your users.
