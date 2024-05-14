@@ -174,10 +174,10 @@ The titular "utilities" of Special Power Utilities, in the form of Game State Qu
 ## TriggerAction Actions
 
 
-|Action                    |Effect             |
-|--------------------------|-----------------------------|
-|Spiderbuttons.SpecialPowerUtilities/SetPowerUnavailable [who] \<powerID>|Sets the specified power to be unavailable for the [Target Player](https://stardewvalleywiki.com/Modding:Game_state_queries#Target_player). If no target is specified, it defaults to `Current`.
-|Spiderbuttons.SpecialPowerUtilities/SetPowerAvailable [who] \<powerID>|Sets the specified power to be available for the [Target Player](https://stardewvalleywiki.com/Modding:Game_state_queries#Target_player). If no target is specified, it defaults to `Current`.
+| Action                                                                           |Effect             |
+|----------------------------------------------------------------------------------|-----------------------------|
+| Spiderbuttons.SpecialPowerUtilities/Actions/SetPowerUnavailable [who] \<powerID> |Sets the specified power to be unavailable for the [Target Player](https://stardewvalleywiki.com/Modding:Game_state_queries#Target_player). If no target is specified, it defaults to `Current`.
+| Spiderbuttons.SpecialPowerUtilities/Actions/SetPowerAvailable [who] \<powerID>   |Sets the specified power to be available for the [Target Player](https://stardewvalleywiki.com/Modding:Game_state_queries#Target_player). If no target is specified, it defaults to `Current`.
 
 ## Content Patcher Tokens
 
