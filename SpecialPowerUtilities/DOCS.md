@@ -81,7 +81,7 @@ Therefore, this feature is not very useful for custom powers unless you particul
 
 # Books
 
-Although Special Power Utilities was made with no specific kind of power in mind, it does offer some ways to make working with books specifically easier. Bear in mind that anything that Special Power Utilities does for books are either superficial in nature (and thus unnecessary, in the grand scheme of things) or can be achieved in other ways. If you are not keen on relying on a dependency mod, I would highly recommend against requiring Special Power Utilities just for these options.
+Although Special Power Utilities was made with general powers in mind, it does offer some ways to make working with books specifically easier. Bear in mind that anything that Special Power Utilities does for books is either superficial in nature (and thus unnecessary, in the grand scheme of things) or can be achieved in other ways. If you are not keen on relying on a dependency mod, I would highly recommend against requiring Special Power Utilities just for these options.
 
 ## Customizable Message
 
