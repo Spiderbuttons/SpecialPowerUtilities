@@ -9,6 +9,7 @@ public static class RecipeBook
 {
     public static int GrantRecipes(string modID)
     {
+        if (modID == null) return 0;
         Dictionary<string, string> recipes = CraftingRecipe.cookingRecipes;
         int num = 0;
         foreach (KeyValuePair<string, string> recipe in recipes)

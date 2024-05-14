@@ -4,6 +4,6 @@ namespace SpecialPowerUtilities.Models;
 
 public class ModSectionData
 {
-    public string SectionName;
+    public string TabID;
     public string IconPath;
 }

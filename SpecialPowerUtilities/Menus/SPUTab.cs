@@ -206,7 +206,7 @@ namespace SpecialPowerUtilities.Menus
                     this.sideTabs.Add(tab.Key, new RClickableTextureComponent(0.ToString() ?? "",
                         new Rectangle(base.xPositionOnScreen - 48,
                             base.yPositionOnScreen + 64 * (2 + this.sideTabs.Count), 64, 64), "",
-                        modSectionData[tab.Key].SectionName,
+                        modSectionData[tab.Key].TabID,
                         Game1.mouseCursors,
                         new Rectangle(16, 368, 16, 16), 4f)
                     {
@@ -219,7 +219,7 @@ namespace SpecialPowerUtilities.Menus
                     this.tabIcons.Add(tab.Key, new ClickableTextureComponent(0.ToString() ?? "",
                         new Rectangle(base.xPositionOnScreen - 32,
                             base.yPositionOnScreen + 64 * (2 + this.tabIcons.Count) + 10, 64, 64), "",
-                        modSectionData[tab.Key].SectionName,
+                        modSectionData[tab.Key].TabID,
                         ModdedIcon,
                         new Rectangle(0, 0, ModdedIcon.Width, ModdedIcon.Height), 64f / ModdedIcon.Width / 1.5f)
                     {
@@ -454,7 +454,10 @@ namespace SpecialPowerUtilities.Menus
 
             if (!SpecialPowerUtilities.Config.EnableCategories) return;
             var cats = Game1.content.Load<Dictionary<string, ModSectionData>>(
+                "Spiderbuttons.SpecialPowerUtilities/PowerTabs");
+            var cats2 = Game1.content.Load<Dictionary<string, ModSectionData>>(
                 "Spiderbuttons.SpecialPowerUtilities/PowerSections");
+            cats = cats.Concat(cats2).ToDictionary(x => x.Key, x => x.Value);
             foreach (var cat in cats)
             {
                 if (!sections.ContainsKey(cat.Key))
@@ -481,7 +484,7 @@ namespace SpecialPowerUtilities.Menus
                 string whichCategory;
                 if (vanillaPowerNames.Contains(power.Key)) whichCategory = i18n.HoverText_StardewValley();
                 else if (pData.CustomFields != null && pData.CustomFields.TryGetValue(
-                             "Spiderbuttons.SpecialPowerUtilities/Section",
+                             "Spiderbuttons.SpecialPowerUtilities/Tab",
                              out var section) && section is string catVal)
                 {
                     whichCategory = catVal == "Stardew Valley" ? i18n.HoverText_StardewValley() : catVal;
@@ -506,7 +509,7 @@ namespace SpecialPowerUtilities.Menus
                     sections.Add(whichCategory, new List<List<ClickableTextureComponent>>());
                     modSectionData.Add(whichCategory, new ModSectionData()
                     {
-                        SectionName = whichCategory.Contains('.') ? whichCategory.Split(".")[1] : whichCategory,
+                        TabID = whichCategory.Contains('.') ? whichCategory.Split(".")[1] : whichCategory,
                         IconPath = null,
                     });
                 }

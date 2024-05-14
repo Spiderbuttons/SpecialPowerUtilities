@@ -59,7 +59,6 @@ namespace SpecialPowerUtilities.Patches
             {
                 Loggers.Log($"No valid recipe prefix found for recipe book: {__instance.Name}", LogLevel.Warn);
             }
-            Loggers.Log(modID);
 
             Game1.player.canMove = false;
             Game1.player.freezePause = 1030;
