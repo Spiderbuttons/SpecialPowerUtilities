@@ -16,14 +16,14 @@ If you _would_ like to specify which tab your modded powers are placed in and wh
   "Action": "EditData",  
   "Target": "Spiderbuttons.SpecialPowerUtilities/PowerTabs",  
   "Entries": {  
-    "{{ModId}}": { // You must use your ModID as the key here.
+    "{{ModId}}": { // It's important that this is your Mod Id!
       "SectionName": "Example Power Mod",  
       "IconPath": "Mods/{{ModId}}/TabIcon"  
     }  
   }  
 }
 ```
-> You must use yout ModId as the ID for your PowerTabs entry, as this determines which tab modded powers are potentially automatically placed into. However, if you have both a Content Patcher component and a C# component in your mod, you can use the ModId of either one. If doing so causes your powers to have a different prefix, however, you will need to manually assign them to your tab.
+> You must use your unique ID as the ID for your PowerTabs entry, as this determines which tab modded powers are potentially automatically placed into. However, if you have both a Content Patcher component and a C# component in your mod, you can use the ModId of either one. If doing so causes your powers to have a different prefix, however, you will need to manually assign them to your tab.
 
 If your modded powers are prefixed with your mod ID as mentioned, then there is nothing else you need to do. They will be placed into your new tab automagically. If this is the only part of Special Power Utilities that you make use of, then your powers will function as normal even if users do not have Special Power Utilities installed.
 
