@@ -6,22 +6,22 @@ If your mod does not add support specifically for Special Power Utilities, your 
 If you _would_ like to specify which tab your modded powers are placed in and what the icon should be, the following example showcases how this is done:
 
 ```json
-﻿{
-	﻿﻿"Action": "Load",
-	﻿﻿"FromFile": "assets/TabIcon.png", // This can be any image so long as it is square. 16x16, 32x32, 64x64... etc. I wouldn't go overboard, though...
-	﻿﻿"Target": "Mods/{{ModId}}/TabIcon"  
-﻿},  
-﻿ 
-﻿{  
-	﻿﻿"Action": "EditData",  
-	﻿﻿"Target": "Spiderbuttons.SpecialPowerUtilities/PowerTabs",  
-	﻿﻿"Entries": {  
-		﻿﻿﻿"{{ModId}}": { // You must use your ModID as the key here.
-			﻿﻿﻿﻿"SectionName": "Example Power Mod",  
-			﻿﻿﻿﻿"IconPath": "Mods/{{ModId}}/TabIcon"  
-		﻿﻿﻿}  
-	﻿﻿}  
-﻿}
+{
+	"Action": "Load",
+	"FromFile": "assets/TabIcon.png", // This can be any image so long as it is square. 16x16, 32x32, 64x64... etc. I wouldn't go overboard, though...
+	"Target": "Mods/{{ModId}}/TabIcon"  
+},  
+ 
+{  
+	"Action": "EditData",  
+	"Target": "Spiderbuttons.SpecialPowerUtilities/PowerTabs",  
+	"Entries": {  
+		"{{ModId}}": { // You must use your ModID as the key here.
+			"SectionName": "Example Power Mod",  
+			"IconPath": "Mods/{{ModId}}/TabIcon"  
+		}  
+	}  
+}
 ```
 If your modded powers are prefixed with your mod ID as mentioned, then there is nothing else you need to do. They will be placed into your new tab automagically. If this is the only part of Special Power Utilities that you make use of, then your powers will function as normal even if users do not have Special Power Utilities installed.
 
