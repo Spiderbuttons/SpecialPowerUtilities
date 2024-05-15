@@ -78,6 +78,11 @@ namespace SpecialPowerUtilities
             {
                 e.LoadFrom(() => new Dictionary<string, ModSectionData>(), AssetLoadPriority.High);
             }
+
+            if (e.Name.IsEquivalentTo("LooseSprites/Book_Animation") && Config.StripelessBooks)
+            {
+                e.LoadFromModFile<Texture2D>("Assets/Book_Animation.png", AssetLoadPriority.Medium);
+            }
         }
         
         private void OnMenuChange(object sender, MenuChangedEventArgs e)

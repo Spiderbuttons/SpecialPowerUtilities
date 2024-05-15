@@ -826,6 +826,9 @@ namespace SpecialPowerUtilities.Menus
 
                 catCount++;
             }
+
+            this.backButton.draw(b);
+            this.forwardButton.draw(b);
             
             if (scrollTrack > 0) this.scrollUp.draw(b);
             if (scrollTrack < sideTabs.Count - 8) this.scrollDown.draw(b);
@@ -833,8 +836,9 @@ namespace SpecialPowerUtilities.Menus
             b.Begin(SpriteSortMode.FrontToBack, BlendState.AlphaBlend, SamplerState.PointClamp);
             if (sections[currentTab].Count > 0)
             {
-                foreach (ClickableTextureComponent item in sections[currentTab][currentPage])
+                for (var index = 0; index < sections[currentTab][currentPage].Count; index++)
                 {
+                    ClickableTextureComponent item = sections[currentTab][currentPage][index];
                     bool drawColor = item.drawShadow;
                     string key = null;
                     foreach (DictionaryEntry power in allPowers)
@@ -846,6 +850,7 @@ namespace SpecialPowerUtilities.Menus
                             break;
                         }
                     }
+
                     if (!drawColor)
                     {
                         item.draw(b, Color.Black * 0.2f, 0.86f);
@@ -858,6 +863,8 @@ namespace SpecialPowerUtilities.Menus
                     {
                         item.draw(b, Color.White, 0.86f);
                     }
+
+                    if (index >= 53) break;
                 }
             }
 

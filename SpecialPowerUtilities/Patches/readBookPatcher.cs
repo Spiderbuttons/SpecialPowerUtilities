@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -26,6 +27,20 @@ namespace SpecialPowerUtilities.Patches
         private static string GetRecipePrefix(ObjectData objData)
         {
             return objData?.CustomFields?.GetValueOrDefault("Spiderbuttons.SpecialPowerUtilities/Books/RecipePrefix");
+        }
+
+        public static Color? GetBookColor(StardewValley.Object obj)
+        {
+            if (obj.HasContextTag("!spu_book_color") && obj.HasContextTag("!spu_book_colour")) return ItemContextTagManager.GetColorFromTags(obj);
+            ObjectData data = Game1.objectData[obj.ItemId];
+            string hexCode = data?.CustomFields?.GetValueOrDefault("Spiderbuttons.SpecialPowerUtilities/Books/Color");
+            if (hexCode == null) hexCode = data?.CustomFields?.GetValueOrDefault("Spiderbuttons.SpecialPowerUtilities/Books/Colour");
+            if (hexCode == null || (hexCode.Length - 1) % 2 != 0 || hexCode[0] != '#') return ItemContextTagManager.GetColorFromTags(obj);
+            int r = Math.Clamp((int)Math.Round(Convert.ToInt32(hexCode.Substring(1, 2), 16) * 1.1534), 0, 255);
+            int g = Math.Clamp((int)Math.Round(Convert.ToInt32(hexCode.Substring(3, 2), 16) * 1.1534), 0, 255);
+            int b = Math.Clamp((int)Math.Round(Convert.ToInt32(hexCode.Substring(5, 2), 16) * 1.1534), 0, 255);
+            try { return new Color(r, g, b); }
+            catch (Exception) { return ItemContextTagManager.GetColorFromTags(obj); }
         }
         
         public static void showMessage(StardewValley.Object obj)
@@ -139,6 +154,18 @@ namespace SpecialPowerUtilities.Patches
                 instructionsToAdd.Add(new CodeInstruction(OpCodes.Br, BranchLabel));
 
                 codeInstructions.InsertRange(insertionIndex, instructionsToAdd);
+                
+                // Now look for a call opcode to ItemContextTagManager.GetColorFromTags
+                foreach (var instruction in codeInstructions)
+                {
+                    if (instruction.opcode == OpCodes.Call &&
+                        instruction.operand is MethodInfo mInfo3 && mInfo3.Equals(
+                            AccessTools.Method(typeof(ItemContextTagManager), nameof(ItemContextTagManager.GetColorFromTags))))
+                    {
+                        instruction.operand = AccessTools.Method(typeof(readBookPatcher), nameof(GetBookColor));
+                        break;
+                    }
+                }
 
                 return codeInstructions;
             }

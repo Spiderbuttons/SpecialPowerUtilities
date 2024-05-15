@@ -15,8 +15,8 @@ public static class RecipeBook
         foreach (KeyValuePair<string, string> recipe in recipes)
         {
             if (!recipe.Key.StartsWith(modID)) continue;
-            Game1.player.cookingRecipes.TryAdd(recipe.Key, 0);
-            num++;
+            bool didAdd = Game1.player.cookingRecipes.TryAdd(recipe.Key, 0);
+            if (didAdd) num++;
         }
         if (num > 0)
         {

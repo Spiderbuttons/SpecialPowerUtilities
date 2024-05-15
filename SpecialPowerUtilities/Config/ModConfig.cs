@@ -1,4 +1,5 @@
 ﻿using GenericModConfigMenu;
+using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
 
 namespace SpecialPowerUtilities.Config;
@@ -12,6 +13,8 @@ public sealed class ModConfig
     public bool EnableMiscCategory { get; set; } = true;
     
     public bool UseVanillaMenu { get; set; } = false;
+    
+    public bool StripelessBooks { get; set; } = true;
 
     public ModConfig()
     {
@@ -24,6 +27,7 @@ public sealed class ModConfig
         this.ParseModNames = true;
         this.EnableMiscCategory = true;
         this.UseVanillaMenu = false;
+        this.StripelessBooks = true;
     }
 
     public void SetupConfig(IGenericModConfigMenuApi configMenu, IManifest ModManifest, IModHelper Helper)
@@ -57,6 +61,17 @@ public sealed class ModConfig
             getValue: () => this.EnableMiscCategory,
             setValue: value => this.EnableMiscCategory = value
         );
+        
+        configMenu.AddBoolOption(
+            mod: ModManifest,
+            name: i18n.Config_StripelessBooks_Name,
+            tooltip: i18n.Config_StripelessBooks_Description,
+            getValue: () => this.StripelessBooks,
+            setValue: (value) =>
+            {
+                this.StripelessBooks = value;
+                Helper.GameContent.InvalidateCache(asset => asset.DataType == typeof(Texture2D) && asset.Name.IsEquivalentTo("LooseSprites/Book_Animation")); 
+            });
         
         configMenu.AddBoolOption(
             mod: ModManifest,
