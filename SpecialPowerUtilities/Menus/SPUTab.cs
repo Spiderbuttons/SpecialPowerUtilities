@@ -255,14 +255,13 @@ namespace SpecialPowerUtilities.Menus
                 Game1.mouseCursors, new Rectangle(352, 495, 12, 11), 4f)
             {
                 myID = region_backButton,
-                rightNeighborID = -7777
+                upNeighborID = 1007,
             };
             this.forwardButton = new ClickableTextureComponent(
                 new Rectangle(base.xPositionOnScreen + width - 32 - 60, base.yPositionOnScreen + height - 80, 48, 44),
                 Game1.mouseCursors, new Rectangle(365, 495, 12, 11), 4f)
             {
                 myID = region_forwardButton,
-                leftNeighborID = -7777
             };
             this.scrollUp = new ClickableTextureComponent(
                 new Rectangle(base.xPositionOnScreen - 104,
@@ -274,6 +273,7 @@ namespace SpecialPowerUtilities.Menus
                 leftNeighborID = -7777,
                 rightNeighborID = 7001,
             };
+            
             this.scrollDown = new ClickableTextureComponent(
                 new Rectangle(base.xPositionOnScreen - 104,
                     base.yPositionOnScreen + 64 * 9 + 12, 48, 44),
@@ -346,6 +346,16 @@ namespace SpecialPowerUtilities.Menus
             {
                 if (category.Key == currentTab) break;
                 index++;
+            }
+            
+            if (currentPage > 0)
+            {
+                for (var j = sections[currentTab][currentPage].Count - 1; (j + 1) % 9 != 0; j--)
+                {
+                    ClickableTextureComponent c = sections[currentTab][currentPage][j];
+                    Loggers.Log(c.myID.ToString());
+                    c.downNeighborID = region_backButton;
+                }
             }
 
             foreach (KeyValuePair<string, RClickableTextureComponent> v in sideTabs)
@@ -527,7 +537,7 @@ namespace SpecialPowerUtilities.Menus
                 int xPos = baseX + widthUsed[whichCategory] % categoryWidth * 76;
                 int yPos = baseY + widthUsed[whichCategory] / categoryWidth * 76;
                 ;
-                if (yPos > base.yPositionOnScreen + height + distanceFromMenuBottomBeforeNewPage)
+                if (yPos > base.yPositionOnScreen + height - distanceFromMenuBottomBeforeNewPage)
                 {
                     sections[whichCategory].Add(new List<ClickableTextureComponent>());
                     widthUsed[whichCategory] = 0;
@@ -563,14 +573,14 @@ namespace SpecialPowerUtilities.Menus
                     texture, new Rectangle(pData.TexturePosition.X, pData.TexturePosition.Y, 16, 16), 4f,
                     unlocked)
                 {
-                    myID = (index + list.Count),
-                    rightNeighborID = (((list.Count + 1) % categoryWidth == 0) ? (-1) : ((index + list.Count) + 1)),
-                    leftNeighborID = ((list.Count % categoryWidth == 0) ? (7001) : ((index + list.Count) - 1)),
+                    myID = (index + list.Count + (54 * (sections[whichCategory].Count - 1))),
+                    rightNeighborID = (((list.Count + 1) % categoryWidth == 0) ? (-1) : ((index + list.Count + (54 * (sections[whichCategory].Count - 1))) + 1)),
+                    leftNeighborID = ((list.Count % categoryWidth == 0) ? (SpecialPowerUtilities.Config.EnableCategories ? 7001 : -1) : ((index + list.Count + (54 * (sections[whichCategory].Count - 1))) - 1)),
                     downNeighborID =
                         ((yPos + 76 > base.yPositionOnScreen + height - distanceFromMenuBottomBeforeNewPage)
                             ? (-7777)
-                            : ((index + list.Count) + categoryWidth)),
-                    upNeighborID = ((list.Count < categoryWidth) ? 12346 : ((index + list.Count) - categoryWidth)),
+                            : ((index + list.Count + (54 * (sections[whichCategory].Count - 1))) + categoryWidth)),
+                    upNeighborID = ((list.Count < categoryWidth) ? 12346 : ((index + list.Count + (54 * (sections[whichCategory].Count - 1))) - categoryWidth)),
                     fullyImmutable = true
                 });
                 widthUsed[whichCategory]++;
@@ -600,19 +610,20 @@ namespace SpecialPowerUtilities.Menus
                     if (this.currentPage > 0)
                     {
                         base.currentlySnappedComponent = base.getComponentWithID(region_backButton);
+                        this.backButton.upNeighborID = (54 * currentPage) + sections[currentTab][currentPage].Count - 1;
                     }
                     else if (this.currentPage == 0 && this.sections[this.currentTab].Count > 1)
                     {
                         base.currentlySnappedComponent = base.getComponentWithID(region_forwardButton);
+                        this.forwardButton.upNeighborID = sections[currentTab][currentPage].Count - 1;
                     }
-
-                    this.backButton.upNeighborID = oldID;
-                    this.forwardButton.upNeighborID = oldID;
+                    
                     break;
                 case 3:
                     if (oldID == region_forwardButton && this.currentPage > 0)
                     {
                         base.currentlySnappedComponent = base.getComponentWithID(region_backButton);
+                        this.backButton.upNeighborID = (54 * currentPage) + sections[currentTab][currentPage].Count - 1;
                     }
 
                     break;
@@ -620,6 +631,7 @@ namespace SpecialPowerUtilities.Menus
                     if (oldID == region_backButton && this.sections[this.currentTab].Count > this.currentPage + 1)
                     {
                         base.currentlySnappedComponent = base.getComponentWithID(region_forwardButton);
+                        this.forwardButton.upNeighborID = sections[currentTab][currentPage].Count - 1;
                     }
 
                     break;
@@ -721,6 +733,7 @@ namespace SpecialPowerUtilities.Menus
                     base.currentlySnappedComponent = forwardButton;
                     Game1.setMousePosition(base.currentlySnappedComponent.bounds.Center);
                 }
+                recalculateNeighbours();
             }
 
             if (currentPage < sections[currentTab].Count - 1 && forwardButton.containsPoint(x, y))
@@ -732,8 +745,10 @@ namespace SpecialPowerUtilities.Menus
                     currentPage == sections[currentTab].Count - 1)
                 {
                     base.currentlySnappedComponent = backButton;
+                    this.backButton.upNeighborID = (54 * currentPage) + sections[currentTab][currentPage].Count - 1;
                     Game1.setMousePosition(base.currentlySnappedComponent.bounds.Center);
                 }
+                recalculateNeighbours();
             }
             
             if (!SpecialPowerUtilities.Config.EnableCategories || this.sideTabs.Count() == 1) return;
@@ -827,8 +842,15 @@ namespace SpecialPowerUtilities.Menus
                 catCount++;
             }
 
-            this.backButton.draw(b);
-            this.forwardButton.draw(b);
+            if (currentPage > 0)
+            {
+                this.backButton.draw(b);
+            }
+
+            if (currentPage < sections[currentTab].Count - 1)
+            {
+                this.forwardButton.draw(b);
+            }
             
             if (scrollTrack > 0) this.scrollUp.draw(b);
             if (scrollTrack < sideTabs.Count - 8) this.scrollDown.draw(b);
@@ -836,9 +858,8 @@ namespace SpecialPowerUtilities.Menus
             b.Begin(SpriteSortMode.FrontToBack, BlendState.AlphaBlend, SamplerState.PointClamp);
             if (sections[currentTab].Count > 0)
             {
-                for (var index = 0; index < sections[currentTab][currentPage].Count; index++)
+                foreach (ClickableTextureComponent item in sections[currentTab][currentPage])
                 {
-                    ClickableTextureComponent item = sections[currentTab][currentPage][index];
                     bool drawColor = item.drawShadow;
                     string key = null;
                     foreach (DictionaryEntry power in allPowers)
@@ -850,7 +871,6 @@ namespace SpecialPowerUtilities.Menus
                             break;
                         }
                     }
-
                     if (!drawColor)
                     {
                         item.draw(b, Color.Black * 0.2f, 0.86f);
@@ -863,8 +883,6 @@ namespace SpecialPowerUtilities.Menus
                     {
                         item.draw(b, Color.White, 0.86f);
                     }
-
-                    if (index >= 53) break;
                 }
             }
 
