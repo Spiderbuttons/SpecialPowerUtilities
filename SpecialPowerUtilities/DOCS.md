@@ -1,4 +1,4 @@
-﻿# Content Patcher Author Documentation
+﻿# CONTENT PATCHER AUTHOR DOCUMENTATION
 
 If your mod does not add support specifically for Special Power Utilities, your mod will still function as normal for your users. Special Power Utilities does not alter the unlocked conditions of your powers in any way. However, you are able to designate a tab for your mod if you so choose and assign it a custom icon that Special Power Utilities will utilize. If the IDs of your special items & powers follow the standard naming convention (i.e. they are prefixed with your mod ID, such as `Author.ModName_CoolPower`) then Special Power Utilities will create a tab for your mod automatically, but you will not get to choose the icon or how the name is displayed without specifying it on your end.
 
@@ -79,7 +79,7 @@ These positions are calculated with the full list of every power in the game **b
 
 Therefore, this feature is not very useful for custom powers unless you particularly care about where your power is placed among the vanilla powers in the event that a user has Special Power Utilities installed but the tabs disabled. If you care about the ordering of your own powers, simply change the order of your powers in your `content.json`. Otherwise, the intended use of this feature is for reordering the vanilla powers.
 
-# Books
+# BOOKS
 
 Although Special Power Utilities was made with general powers in mind, it does offer some ways to make working with books specifically easier. Bear in mind that anything that Special Power Utilities does for books is either superficial in nature (and thus unnecessary, in the grand scheme of things) or can be achieved in other ways. If you are not keen on relying on a dependency mod, I would highly recommend against requiring Special Power Utilities just for these options.
 
@@ -187,7 +187,7 @@ Additionally, as long as Special Power Utilities remains installed and your book
 
 This is a permanent addition, however—if a player reads a recipe book, Special Power Utilities will always check if that book still exists and what its prefix is before granting the recipes. If a prefix was previously specified, but you have changed it in an update, Special Power Utilities will use that new prefix when granting the recipes again. If there was previously a prefix, but you remove the prefix entirely in an update, Special Power Utilities will try and grab your mod ID from the book ID. If it can, it will grant all recipes beginning with your mod ID. If it cannot figure out your mod ID, no recipes will be granted. In effect, this means that in order to not break your existing recipe book in future updates, you must, at the very least, keep the book ID the same. It also means that while you can make a book either more or less specific in a future update to your mod, you cannot entirely revoke its ability to try granting recipes unless you change your book ID (effectively replacing it with an entirely new book) or remove your book entirely.
 
-# Utilities
+# UTILITIES
 
 The titular "utilities" of Special Power Utilities, in the form of Game State Queries, TriggerAction Actions, and Content Patcher tokens.
 
@@ -212,7 +212,7 @@ The titular "utilities" of Special Power Utilities, in the form of Game State Qu
 |Spiderbuttons.SpecialPowerUtilities/HasPower|Similar to `HasProfession` for checking whether or not powers are unlocked. Accepts an optional input argument of `Any` to check whether any connected player has a power.| `"When": { "Spiderbuttons.SpecialPowerUtilities/HasPower \|contains=Book_Mystery": "true" }` 
 |Spiderbuttons.SpecialPowerUtilities/UnavailablePowers|Similar to `HasPower` above for checking whether or not powers are available. Accepts an optional input argument of `Any` to check whether any player has a power unavailable to them.| `"When": { "Spiderbuttons.SpecialPowerUtilities/UnavailablePowers:Any": "Book_Horse" }`      
 
-# Power Availability
+# POWER AVAILABILITY
 
 With Special Power Utilities, special items and powers can now be marked as "unavailable" and will appear faded to the player on their special items and powers tab. Marking a power as "unavailable" does not do anything on its own—it would be up to you to determine what effects occur when a player's power is unavailable. It is intended for temporarily revoking the benefits granted by a power under circumstances you choose and then giving those benefits back later. It will _not_ decrement any stats or remove any mail flags or anything like that. Players will still have the special items or powers _unlocked_ (i.e. they will still meet the UnlockedCondition as described in the Data/Powers entry), but the effects of the special items or powers may just be temporarily suppressed. If a player uninstalls Special Power Utilities, their special items and powers will once more be made available to them.
 
