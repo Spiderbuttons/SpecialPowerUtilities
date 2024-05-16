@@ -1,8 +1,8 @@
 ﻿# CONTENT PATCHER AUTHOR DOCUMENTATION
 
+## Special Items & Powers Tabs
 If your mod does not add support specifically for Special Power Utilities, your mod will still function as normal for your users. Special Power Utilities does not alter the unlocked conditions of your powers in any way. However, you are able to designate a tab for your mod if you so choose and assign it a custom icon that Special Power Utilities will utilize. If the IDs of your special items & powers follow the standard naming convention (i.e. they are prefixed with your mod ID, such as `Author.ModName_CoolPower`) then Special Power Utilities will create a tab for your mod automatically, but you will not get to choose the icon or how the name is displayed without specifying it on your end.
 
-## Special Items & Powers Tabs
 If you _would_ like to specify which tab your modded powers are placed in and what the icon should be, the following example showcases how this is done:
 
 ```jsonc
