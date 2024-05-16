@@ -121,7 +121,7 @@ Reading a book with the `spu_book_no_message` context tag, whether it's a vanill
 
 ## Animation Colour
 
-When the animation for reading a book is displayed over your farmers head, it will take on the colour corresponding to the `color_` context tag that you added to your book item. This limits you to only choosing colours that already exist in the game for use in the dye system. With Special Power Utilities, however, you are able to specify any arbitrary colour you'd like with a colour hex code.
+When the animation for reading a book is displayed over your farmers head, it will take on the colour corresponding to the `color_` context tag that you added to your book item. This limits you to only choosing colours that already exist in the game for use in the dye system. With Special Power Utilities, however, you are able to specify any arbitrary colour you'd like with a context tag and a colour hex code.
     
 ```jsonc
 {
@@ -130,6 +130,11 @@ When the animation for reading a book is displayed over your farmers head, it wi
     "Entries": {
         "{{ModId}}_BookID": {
             ...
+            "ContextTags": [
+                "color_blue",
+                "book_item",
+                "spu_book_color"
+            ],
             "CustomFields": {
                 "Spiderbuttons.SpecialPowerUtilities/Books/Color": "#D000FF"
             }
@@ -139,7 +144,7 @@ When the animation for reading a book is displayed over your farmers head, it wi
 ```
 > **IMPORTANT**: Because the colour is being drawn on top of a white base colour, the resulting colour in game will not exactly match the hex code you specify. However, I have tried to make it match as close as reasonably possible; the difference should be unnoticeable unless you are eyedropping the colour to check.
  
-The hex code must follow that format: A `#` symbol followed by six hexadecimal digits. Anything past the first six digits will not be parsed, so transparency is not supported. If Special Power Utilities is unable to parse the hex code you provide, or if you do not provide a hex code at all, it will default to the vanilla behaviour of using the `color_` context tag to determine the colour of the animation. For this reason, and to ensure the book still displays a proper colour when a user does not have Special Power Utilities installed, you should always still include a `color_` context tag for your book object.
+The hex code must follow that format: A `#` symbol followed by six hexadecimal digits. Anything past the first six digits will not be parsed, so transparency is not supported. If Special Power Utilities is unable to parse the hex code you provide, if you do not provide a hex code at all, or if you do not add the `spu_book_color` context tag, the book will default to the vanilla behaviour of using the `color_` context tag to determine the colour of the animation. For this reason, and to ensure the book still displays a proper colour when a user does not have Special Power Utilities installed, you should always still include a `color_` context tag for your book object.
 
 Also, both `Color` and `Colour` are accepted spellings for the `CustomFields` entry.
 
