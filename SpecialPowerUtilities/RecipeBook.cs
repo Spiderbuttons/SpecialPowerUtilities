@@ -48,7 +48,7 @@ public static class RecipeBook
         {
             ObjectData data = Game1.objectData[book];
             if (data == null) continue;
-            string prefix = readBookPatcher.GetRecipePrefix(data);
+            string prefix = readBookPatcher.GetRecipePrefix(data) ?? Utils.TryGetModFromString(book)?.Manifest.UniqueID;
             if (prefix == null) continue;
             GrantRecipes(prefix);
         }
