@@ -1,35 +1,33 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using SpecialPowerUtilities.Helpers;
+using SpecialPowerUtilities.Patches;
 using StardewValley;
+using StardewValley.GameData.Objects;
 
 namespace SpecialPowerUtilities;
 
 public static class RecipeBook
 {
-    public static int GrantRecipes(string modID)
+    public static int GrantRecipes(string prefix)
     {
-        if (modID == null) return 0;
+        if (prefix == null) return 0;
         Dictionary<string, string> recipes = CraftingRecipe.cookingRecipes;
         int num = 0;
         foreach (KeyValuePair<string, string> recipe in recipes)
         {
-            if (!recipe.Key.StartsWith(modID)) continue;
+            if (!recipe.Key.StartsWith(prefix)) continue;
             bool didAdd = Game1.player.cookingRecipes.TryAdd(recipe.Key, 0);
             if (didAdd) num++;
-        }
-        if (num > 0)
-        {
-            AddRecipeBook(modID);
         }
         return num;
     }
 
-    public static void AddRecipeBook(string modID)
+    public static void AddRecipeBook(string bookID)
     {
         List<string> recipeBooks = GetRecipeBooks();
-        if (recipeBooks.Contains(modID)) return;
-        recipeBooks.Add(modID);
+        if (recipeBooks.Contains(bookID)) return;
+        recipeBooks.Add(bookID);
         Game1.player.modData["Spiderbuttons.SpecialPowerUtilities/Books/RecipeBooks"] = string.Join(",", recipeBooks);
     }
     
@@ -48,7 +46,11 @@ public static class RecipeBook
         if (recipeBooks.Count == 0) return;
         foreach (string book in recipeBooks)
         {
-            GrantRecipes(book);
+            ObjectData data = Game1.objectData[book];
+            if (data == null) continue;
+            string prefix = readBookPatcher.GetRecipePrefix(data);
+            if (prefix == null) continue;
+            GrantRecipes(prefix);
         }
     }
 }

@@ -24,7 +24,7 @@ namespace SpecialPowerUtilities.Patches
             return objData?.CustomFields?.GetValueOrDefault("Spiderbuttons.SpecialPowerUtilities/Books/Message");
         }
 
-        private static string GetRecipePrefix(ObjectData objData)
+        public static string GetRecipePrefix(ObjectData objData)
         {
             return objData?.CustomFields?.GetValueOrDefault("Spiderbuttons.SpecialPowerUtilities/Books/RecipePrefix");
         }
@@ -108,6 +108,7 @@ namespace SpecialPowerUtilities.Patches
             
             int recipeCount = RecipeBook.GrantRecipes(modID);
             showRecipeMessage(data, recipeCount);
+            RecipeBook.AddRecipeBook(__instance.ItemId);
             Game1.player.stats.Increment(__instance.ItemId);
             
             return false;

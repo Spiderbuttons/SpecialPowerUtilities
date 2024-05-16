@@ -353,7 +353,6 @@ namespace SpecialPowerUtilities.Menus
                 for (var j = sections[currentTab][currentPage].Count - 1; (j + 1) % 9 != 0; j--)
                 {
                     ClickableTextureComponent c = sections[currentTab][currentPage][j];
-                    Loggers.Log(c.myID.ToString());
                     c.downNeighborID = region_backButton;
                 }
             }
