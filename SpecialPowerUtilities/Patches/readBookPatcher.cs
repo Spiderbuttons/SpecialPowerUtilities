@@ -31,16 +31,41 @@ namespace SpecialPowerUtilities.Patches
 
         public static Color? GetBookColor(StardewValley.Object obj)
         {
-            if (obj.HasContextTag("!spu_book_color") && obj.HasContextTag("!spu_book_colour")) return ItemContextTagManager.GetColorFromTags(obj);
-            ObjectData data = Game1.objectData[obj.ItemId];
-            string hexCode = data?.CustomFields?.GetValueOrDefault("Spiderbuttons.SpecialPowerUtilities/Books/Color");
-            if (hexCode == null) hexCode = data?.CustomFields?.GetValueOrDefault("Spiderbuttons.SpecialPowerUtilities/Books/Colour");
-            if (hexCode == null || (hexCode.Length - 1) % 2 != 0 || hexCode[0] != '#') return ItemContextTagManager.GetColorFromTags(obj);
-            int r = Math.Clamp((int)Math.Round(Convert.ToInt32(hexCode.Substring(1, 2), 16) * 1.1534), 0, 255);
-            int g = Math.Clamp((int)Math.Round(Convert.ToInt32(hexCode.Substring(3, 2), 16) * 1.1534), 0, 255);
-            int b = Math.Clamp((int)Math.Round(Convert.ToInt32(hexCode.Substring(5, 2), 16) * 1.1534), 0, 255);
-            try { return new Color(r, g, b); }
-            catch (Exception) { return ItemContextTagManager.GetColorFromTags(obj); }
+            try
+            {
+                if (obj.HasContextTag("!spu_book_color") && obj.HasContextTag("!spu_book_colour"))
+                    return ItemContextTagManager.GetColorFromTags(obj);
+                ObjectData data = Game1.objectData[obj.ItemId];
+                string hexCode =
+                    data?.CustomFields?.GetValueOrDefault("Spiderbuttons.SpecialPowerUtilities/Books/Color");
+                if (hexCode == null)
+                    hexCode = data?.CustomFields?.GetValueOrDefault("Spiderbuttons.SpecialPowerUtilities/Books/Colour");
+                if (hexCode == null || (hexCode.Length - 1) % 2 != 0 || hexCode[0] != '#')
+                    return ItemContextTagManager.GetColorFromTags(obj);
+                int r = Convert.ToInt32(hexCode.Substring(1, 2), 16);
+                int g = Convert.ToInt32(hexCode.Substring(3, 2), 16);
+                int b = Convert.ToInt32(hexCode.Substring(5, 2), 16);
+                int mult = 219; // The off-white RGB colour in the (vanilla) book animation.
+                Color targetColour = new Color(r, g, b);
+                
+                while ((int)(r * (mult / 255f)) < targetColour.R || (int)(g * (mult / 255f)) < targetColour.G || (int)(b * (mult / 255f)) < targetColour.B)
+                {
+                    if ((int)(r * (mult / 255f)) < targetColour.R) r++;
+                    if ((int)(g * (mult / 255f)) < targetColour.G) g++;
+                    if ((int)(b * (mult / 255f)) < targetColour.B) b++;
+                    if (r >= 255 && g >= 255 && b >= 255) break;
+                }
+                
+                r = Math.Clamp(r, 0, 255);
+                g = Math.Clamp(g, 0, 255);
+                b = Math.Clamp(b, 0, 255);
+
+                return new Color(r, g, b);
+            }
+            catch (Exception)
+            {
+                return ItemContextTagManager.GetColorFromTags(obj);
+            }
         }
         
         public static void showMessage(StardewValley.Object obj)
@@ -72,7 +97,7 @@ namespace SpecialPowerUtilities.Patches
             var modID = GetRecipePrefix(data) ?? Utils.TryGetModFromString(__instance.ItemId)?.Manifest.UniqueID;
             if (modID == null)
             {
-                Loggers.Log($"No valid recipe prefix found for recipe book: {__instance.Name}", LogLevel.Warn);
+                Log.Warn($"No valid recipe prefix found for recipe book: {__instance.Name}");
             }
 
             Game1.player.canMove = false;
@@ -172,7 +197,7 @@ namespace SpecialPowerUtilities.Patches
             }
             catch (Exception ex)
             {
-                Loggers.Log("Error in SpecialPowerUtilities_readBook_Transpiler: \n" + ex, LogLevel.Error);
+                Log.Error("Error in SpecialPowerUtilities_readBook_Transpiler: \n" + ex);
                 return codeInstructions;
             }
         }

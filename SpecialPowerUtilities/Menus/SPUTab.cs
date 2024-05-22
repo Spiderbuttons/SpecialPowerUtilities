@@ -401,7 +401,7 @@ namespace SpecialPowerUtilities.Menus
                         powerPlacements.Add(new KeyValuePair<string, object>(power.Key as string, placementInt));
                     } else
                     {
-                        Loggers.Log("Invalid placement value for power " + power.Key + ": " + placementVal, LogLevel.Warn);
+                        Log.Warn("Invalid placement value for power " + power.Key + ": " + placementVal);
                     }
                 } else if (pData.CustomFields != null && pData.CustomFields.TryGetValue("Spiderbuttons.SpecialPowerUtilities/Placement/BeforeID", out var beforeData) && beforeData is string beforeVal)
                 {
@@ -460,7 +460,7 @@ namespace SpecialPowerUtilities.Menus
             }
             catch (Exception ex)
             {
-                Loggers.Log("Failed to load powers data: " + ex.Message);
+                Log.Error("Failed to load powers data: " + ex.Message);
             }
 
             if (!SpecialPowerUtilities.Config.EnableCategories) return;

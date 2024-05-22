@@ -46,7 +46,7 @@ public static class RecipeBook
         if (recipeBooks.Count == 0) return;
         foreach (string book in recipeBooks)
         {
-            ObjectData data = Game1.objectData[book];
+            if (!Game1.objectData.TryGetValue(book, out var data)) continue;
             if (data == null) continue;
             string prefix = readBookPatcher.GetRecipePrefix(data) ?? Utils.TryGetModFromString(book)?.Manifest.UniqueID;
             if (prefix == null) continue;

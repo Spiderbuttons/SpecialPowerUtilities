@@ -31,7 +31,7 @@ public class PowerTriggerActions
             }
             catch (Exception ex)
             {
-                Loggers.Log("Error in SetPowerUnavailable: " + ex.Message, LogLevel.Error);
+                Log.Error("Error in SetPowerUnavailable: " + ex.Message);
                 return false;
             }
         
@@ -63,7 +63,7 @@ public class PowerTriggerActions
             }
             catch (Exception ex)
             {
-                Loggers.Log("Error in SetPowerAvailable: " + ex.Message, LogLevel.Error);
+                Log.Error("Error in SetPowerAvailable: " + ex.Message);
                 return false;
             }
             return true;

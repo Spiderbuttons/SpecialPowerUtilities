@@ -97,7 +97,7 @@ namespace SpecialPowerUtilities
                 powersTabIndex = i;
                 break;
             }
-            Loggers.Log($"Found PowersTab at index {powersTabIndex}", LogLevel.Trace);
+            Log.Trace($"Found PowersTab at index {powersTabIndex}");
             IClickableMenu oldTab = menu.pages[powersTabIndex];
             try
             {
@@ -105,7 +105,7 @@ namespace SpecialPowerUtilities
             }
             catch (Exception ex)
             {
-                Loggers.Log($"Failed to replace PowersTab: {ex.Message}", LogLevel.Error);
+                Log.Error($"Failed to replace PowersTab: {ex.Message}");
             }
         }
     }

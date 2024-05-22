@@ -142,11 +142,11 @@ When the animation for reading a book is displayed over your farmers head, it wi
     }
 }
 ```
-> **IMPORTANT**: Because the colour is being drawn on top of a white base colour, the resulting colour in game will not exactly match the hex code you specify. However, I have tried to make it match as close as reasonably possible; the difference should be unnoticeable unless you are eyedropping the colour to check.
+> **IMPORTANT**: Because the colour is being multiplied on top of an off-white base colour, the resulting colour in game might not exactly match the hex code you specify. This is more evident the closer your individual RGB values are to 255 (FF). Since there is a maximum level of white you can achieve, sometimes it is simply not possible to get the exact colour you want after the multiply blending. Like, 99% of colours should be fine, though, and in any case, you can always choose to use the vanilla colour system if you're not happy with the result.
  
 The hex code must follow that format: A `#` symbol followed by six hexadecimal digits. Anything past the first six digits will not be parsed, so transparency is not supported. If Special Power Utilities is unable to parse the hex code you provide, if you do not provide a hex code at all, or if you do not add the `spu_book_color` context tag, the book will default to the vanilla behaviour of using the `color_` context tag to determine the colour of the animation. For this reason, and to ensure the book still displays a proper colour when a user does not have Special Power Utilities installed, you should always still include a `color_` context tag for your book object.
 
-Also, both `Color` and `Colour` are accepted spellings for the `CustomFields` entry.
+You may also use `spu_book_colour` for the context tag and `Colour` for the CustomFields key if you prefer to spell it that way.
 
 ## Recipe Books
 
