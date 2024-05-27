@@ -12,7 +12,7 @@
   "Config.UseVanillaMenu.Description": "Indique s’il faut ou non utiliser le menu de base pour l'onglet Objets spéciaux et Pouvoirs. Si activé, le menu personnalisé de Special Power Utilities ne sera pas utilisé. Vous ne verrez pas de catégories et aucun pouvoir marqué comme indisponible par les auteurs de mod ne sera visible pour vous. Cependant, tous les effets seront toujours appliqués.",
   
   "Config.StripelessBooks.Name": "Livres sans rayures",
-  "Config.StripelessBooks.Description": "Whether or not to remove the two stripes from the books in the animation that plays when you read a book.",
+  "Config.StripelessBooks.Description": "Permet de choisir de supprimer ou non les deux bandes des livres pendant l'animation qui se joue lorsque vous lisez un livre.",
   
   "HoverText.StardewValley": "Stardew Valley",
   "HoverText.Misc": "Divers",
