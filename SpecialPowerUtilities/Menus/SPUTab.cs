@@ -455,6 +455,11 @@ namespace SpecialPowerUtilities.Menus
                 var powersData = DataLoader.Powers(Game1.content);
                 foreach (KeyValuePair<string, PowersData> power in powersData)
                 {
+                    if (power.Value.DisplayName == null)
+                    {
+                        power.Value.DisplayName = "Missing DisplayName field!";
+                        power.Value.Description += "\n\nSpecial Power Utilities detected incorrect data for this power. Please report the error to the author of the mod that added it!";
+                    }
                     allPowers.Add(power.Key, power.Value);
                 }
             }
