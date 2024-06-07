@@ -24,5 +24,6 @@ SOFTWARE.
 
 FRENCH TRANSLATIONS COURTESY OF [CARANUD](https://forums.nexusmods.com/profile/745980-caranud/)\
 JAPANESE TRANSLATIONS COURTESY OF [MITEKANO23](https://forums.nexusmods.com/profile/3588405-mitekano23/)
+KOREAN TRANSLATIONS COURTESY OF [WHDMS2008](https://next.nexusmods.com/profile/whdms2008/)
 
 THANK YOU TO MY VOLUNTEER TRANSLATORS! ♥
