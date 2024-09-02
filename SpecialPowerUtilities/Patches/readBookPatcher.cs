@@ -189,6 +189,7 @@ namespace SpecialPowerUtilities.Patches
                             AccessTools.Method(typeof(ItemContextTagManager), nameof(ItemContextTagManager.GetColorFromTags))))
                     {
                         instruction.operand = AccessTools.Method(typeof(readBookPatcher), nameof(GetBookColor));
+                        // change it to a method of an instance of ParsedItemData and the nameof GetTexture
                         break;
                     }
                 }
