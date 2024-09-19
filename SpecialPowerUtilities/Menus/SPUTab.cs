@@ -202,6 +202,14 @@ namespace SpecialPowerUtilities.Menus
                     {
                         ModdedIcon = Game1.content.Load<Texture2D>(modSectionData[tab.Key].IconPath);
                     }
+                    
+                    Rectangle iconRect = new Rectangle(0, 0, ModdedIcon.Width, ModdedIcon.Height);
+                    if (modSectionData[tab.Key].IconSourceRect != null)
+                    {
+                        iconRect = new Rectangle(modSectionData[tab.Key].IconSourceRect.X,
+                            modSectionData[tab.Key].IconSourceRect.Y, modSectionData[tab.Key].IconSourceRect.Width,
+                            modSectionData[tab.Key].IconSourceRect.Height);
+                    }
 
                     string hText = modSectionData[tab.Key].TabDisplayName ?? modSectionData[tab.Key].SectionName;
 
@@ -223,7 +231,7 @@ namespace SpecialPowerUtilities.Menus
                             base.yPositionOnScreen + 64 * (2 + this.tabIcons.Count) + 10, 64, 64), "",
                         hText,
                         ModdedIcon,
-                        new Rectangle(0, 0, ModdedIcon.Width, ModdedIcon.Height), 64f / ModdedIcon.Width / 1.5f)
+                        iconRect, 64f / (modSectionData[tab.Key].IconSourceRect != null ? modSectionData[tab.Key].IconSourceRect.Width : ModdedIcon.Width) / 1.5f)
                     {
                         myID = 2000 + tabIcons.Count,
                         upNeighborID = 2000,

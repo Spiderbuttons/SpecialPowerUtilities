@@ -5,10 +5,8 @@ using System.Reflection;
 using System.Reflection.Emit;
 using ContentPatcher;
 using GenericModConfigMenu;
-using Microsoft.Xna.Framework;
 using HarmonyLib;
 using Microsoft.Xna.Framework.Graphics;
-using Sickhead.Engine.Util;
 using SpecialPowerUtilities.Config;
 using SpecialPowerUtilities.Helpers;
 using SpecialPowerUtilities.Menus;
@@ -45,7 +43,6 @@ namespace SpecialPowerUtilities
             Helper.Events.Display.MenuChanged += OnMenuChange;
             Helper.Events.Content.AssetRequested += OnAssetRequested;
             Helper.Events.GameLoop.GameLaunched += OnGameLaunched;
-            Helper.Events.GameLoop.UpdateTicked += OnUpdateTicked;
             Helper.Events.GameLoop.SaveLoaded += OnSaveLoaded;
             Helper.Events.Input.ButtonPressed += OnButtonPressed;
 
@@ -58,71 +55,15 @@ namespace SpecialPowerUtilities
                 var powersData = DataLoader.Powers(Game1.content);
                 return powersData.ContainsKey(query[2]) && GameStateQuery.CheckConditions(powersData[query[2]].UnlockedCondition, null, ctx.Player);
             });
-
-            // harmony.Patch(original: AccessTools.PropertyGetter(typeof(Farmer), nameof(Farmer.DailyLuck)),
-            //     postfix: new HarmonyMethod(getMethod));
-
         }
         
         private void OnButtonPressed(object sender, ButtonPressedEventArgs e)
         {
-            //Log.Warn(Assembly.GetExecutingAssembly().GetName());
-            var type = Type.GetType("StardewValley.Game1");
-            if (type is not null) Log.Warn(type.ToString());
             if (!Context.IsWorldReady) return;
             
             if (e.Button == SButton.F5)
             {
                 Log.Info(RecipeBook.GetRecipeBooks().Count);
-            }
-        }
-
-        public static DynamicMethod GetMethod(MethodBase method)
-        {
-            Log.Info("Testing!");
-            Type returnType = typeof(void);
-
-            Type othertype = Type.GetType("Game1");
-
-            Type[] paramTypes = method.GetParameters().Select(p => p.ParameterType).ToArray();
-            Type declaringType = method.DeclaringType;
-            
-            if (method is MethodInfo info)
-            {
-                returnType = info.ReturnType;
-                // select the TryParse method that takes a nullable string and returns an out bool
-                var method2 = returnType.GetMethod("TryParse", new Type[] { typeof(string), returnType.MakeByRefType() });
-                var methods = returnType.GetMethods().Where(m => m.Name == "TryParse" && m.GetParameters().Length == 2 && m.GetParameters()[0].ParameterType == typeof(string) && m.GetParameters()[1].IsOut && m.GetParameters()[1].ParameterType == typeof(bool));
-                if (method2 is not null) Log.Warn($"Method2: {method2.Name}: {method2.ToString()}");
-                Log.Warn($"Return type: {returnType}");
-                Log.Warn($"Param types: {string.Join(", ", paramTypes.Select(p => p.Name))}");
-            }
-            // var paramTypes = method.GetParameters().Select(p => p.ParameterType).ToArray();
-            
-                Log.Debug($"Method: {method.Name} DeclaringType: {method.DeclaringType}");
-                DynamicMethod testMethod = new DynamicMethod($"{method.Name}_Patch", typeof(void), paramTypes, declaringType.Module);
-                testMethod.DefineParameter(0, ParameterAttributes.Out, "__result");
-                ILGenerator il = testMethod.GetILGenerator();
-                var label = il.DefineLabel();
-                il.Emit(OpCodes.Ldstr, "Hello, IL!");
-                // call generic Log.Warn method with string argument
-                il.Emit(OpCodes.Call,
-                    AccessTools.Method(typeof(Log), nameof(Log.Warn), null, new Type[] { typeof(string) }));
-                il.Emit(OpCodes.Ret);
-
-                Log.Debug("Finished gen method");
-            
-                //testMethod.Invoke(null, null);
-            
-                return testMethod;
-        }
-        
-        private void OnUpdateTicked(object sender, UpdateTickedEventArgs e)
-        {
-            if (e.IsMultipleOf(6) && !DynamicPatcher.IsInitialized)
-            {
-                DynamicPatcher.Initialize(ModManifest);
-                Helper.Events.GameLoop.UpdateTicked -= OnUpdateTicked;
             }
         }
 
@@ -152,11 +93,6 @@ namespace SpecialPowerUtilities
             if (e.NameWithoutLocale.IsEquivalentTo("LooseSprites/Book_Animation") && Config.StripelessBooks)
             {
                 e.LoadFromModFile<Texture2D>("Assets/Book_Animation.png", AssetLoadPriority.Medium);
-            }
-            
-            if (e.NameWithoutLocale.IsEquivalentTo("Spiderbuttons.SpecialPowerUtilities/SimplePatches"))
-            {
-                e.LoadFrom(() => new List<SimpleDynamicPatch>(), AssetLoadPriority.Medium);
             }
         }
         
