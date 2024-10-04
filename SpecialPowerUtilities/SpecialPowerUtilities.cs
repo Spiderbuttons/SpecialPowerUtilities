@@ -63,11 +63,6 @@ namespace SpecialPowerUtilities
         private void OnButtonPressed(object sender, ButtonPressedEventArgs e)
         {
             if (!Context.IsWorldReady) return;
-            
-            if (e.Button == SButton.F5)
-            {
-                Log.Info(RecipeBook.GetRecipeBooks().Count);
-            }
         }
 
         private void OnGameLaunched(object sender, GameLaunchedEventArgs e)
