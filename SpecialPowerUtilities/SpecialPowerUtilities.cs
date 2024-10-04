@@ -7,6 +7,7 @@ using ContentPatcher;
 using GenericModConfigMenu;
 using HarmonyLib;
 using Microsoft.Xna.Framework.Graphics;
+using SpecialPowerUtilities.APIs;
 using SpecialPowerUtilities.Config;
 using SpecialPowerUtilities.Helpers;
 using SpecialPowerUtilities.Menus;
@@ -30,6 +31,8 @@ namespace SpecialPowerUtilities
         internal static Harmony harmony { get; set; } = null!;
         
         internal static IContentPatcherAPI CP = null!;
+
+        internal static IUnlockableBundlesAPI UBundles = null!;
         
         public override void Entry(IModHelper helper)
         {
@@ -72,6 +75,8 @@ namespace SpecialPowerUtilities
             CP = Helper.ModRegistry.GetApi<IContentPatcherAPI>("Pathoschild.ContentPatcher");
             CP?.RegisterToken(ModManifest, "HasPower", new HasPower());
             CP?.RegisterToken(ModManifest, "UnavailablePowers", new UnavailablePowers());
+            
+            UBundles = Helper.ModRegistry.GetApi<IUnlockableBundlesAPI>("DLX.Bundles");
             
             var configMenu = Helper.ModRegistry.GetApi<IGenericModConfigMenuApi>("spacechase0.GenericModConfigMenu");
             if (configMenu != null) Config.SetupConfig(configMenu, ModManifest, Helper);

@@ -16,5 +16,7 @@
   
   "HoverText.StardewValley": "Stardew Valley",
   "HoverText.Misc": "Miscellaneous",
-  "HoverText.Unavailable": "Unavailable"
+  "HoverText.Unavailable": "Unavailable",
+  
+  "COMPAT_HoverText.UnlockableBundles": "Wallet Currencies",
 }

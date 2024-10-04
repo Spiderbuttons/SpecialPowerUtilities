@@ -5,6 +5,7 @@ using System.Collections.Specialized;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using SpecialPowerUtilities.APIs;
 using SpecialPowerUtilities.Components;
 using StardewValley;
 using StardewModdingAPI;
@@ -101,6 +102,8 @@ namespace SpecialPowerUtilities.Menus
             SpecialPowerUtilities.ModHelper.ModContent.Load<Texture2D>("assets/TabIcons/Stardrop.png");
 
         Texture2D TicketIcon = SpecialPowerUtilities.ModHelper.ModContent.Load<Texture2D>("assets/TabIcons/Ticket.png");
+        
+        Texture2D UB_CurrencyIcon = SpecialPowerUtilities.ModHelper.ModContent.Load<Texture2D>("assets/TabIcons/UB_Currency.png");
 
         List<Texture2D> BackupIcons = new List<Texture2D>();
 
@@ -188,6 +191,33 @@ namespace SpecialPowerUtilities.Menus
                             base.yPositionOnScreen + 64 * (2 + this.tabIcons.Count) + 10, 64, 64), "", tab.Key,
                         ModdedIcon,
                         new Rectangle(0, 0, ModdedIcon.Width, ModdedIcon.Height), 64f / ModdedIcon.Width / 1.5f)
+                    {
+                        myID = 2000 + tabIcons.Count,
+                        upNeighborID = 2000,
+                        downNeighborID = -99998,
+                        rightNeighborID = 0,
+                        leftNeighborID = region_scrollDown
+                    });
+                }
+                else if (tab.Key == i18n.COMPATHoverText_UnlockableBundles())
+                {
+                    this.sideTabs.Add(tab.Key, new RClickableTextureComponent(0.ToString() ?? "",
+                        new Rectangle(base.xPositionOnScreen - 48,
+                            base.yPositionOnScreen + 64 * (2 + this.sideTabs.Count), 64, 64), "", tab.Key,
+                        Game1.mouseCursors,
+                        new Rectangle(16, 368, 16, 16), 4f)
+                    {
+                        myID = 7001 + sideTabs.Count,
+                        upNeighborID = 7001 + sideTabs.Count - 1,
+                        downNeighborID = 7001 + sideTabs.Count + 1,
+                        rightNeighborID = 0,
+                        leftNeighborID = region_scrollDown
+                    });
+                    this.tabIcons.Add(tab.Key, new ClickableTextureComponent(0.ToString() ?? "",
+                        new Rectangle(base.xPositionOnScreen - 32,
+                            base.yPositionOnScreen + 64 * (2 + this.tabIcons.Count) + 10, 64, 64), "", tab.Key,
+                        UB_CurrencyIcon,
+                        new Rectangle(0, 0, UB_CurrencyIcon.Width, UB_CurrencyIcon.Height), 64f / UB_CurrencyIcon.Width / 1.5f)
                     {
                         myID = 2000 + tabIcons.Count,
                         upNeighborID = 2000,
@@ -509,6 +539,10 @@ namespace SpecialPowerUtilities.Menus
                 string parsedID = Utils.TryGetModFromString(power.Key as string)?.Manifest.UniqueID ??
                     i18n.HoverText_Misc();
                 if (vanillaPowerNames.Contains(power.Key)) whichCategory = i18n.HoverText_StardewValley();
+                else if ((power.Key as string).StartsWith("UB_Currency"))
+                {
+                    whichCategory = i18n.COMPATHoverText_UnlockableBundles();
+                }
                 else if (pData.CustomFields != null && pData.CustomFields.TryGetValue(
                              "Spiderbuttons.SpecialPowerUtilities/Tab",
                              out var section) && section is string catVal)
@@ -877,7 +911,7 @@ namespace SpecialPowerUtilities.Menus
                     foreach (DictionaryEntry power in allPowers)
                     {
                         PowersData pData = power.Value as PowersData;
-                        if (TokenParser.ParseText(pData.DisplayName) == item.name)
+                        if (TokenParser.ParseText(pData?.DisplayName) == item.name)
                         {
                             key = power.Key as string;
                             break;
@@ -894,6 +928,20 @@ namespace SpecialPowerUtilities.Menus
                     else
                     {
                         item.draw(b, Color.White, 0.86f);
+                    }
+
+                    if (key is not null && key.StartsWith("UB_Currency", StringComparison.OrdinalIgnoreCase) && SpecialPowerUtilities.UBundles is not null)
+                    {
+                        var currencyCount = SpecialPowerUtilities.UBundles
+                            .getWalletCurrency(key.Substring(12), Game1.player.UniqueMultiplayerID).ToString();
+                        for (int i = 0; i < currencyCount.Length; i++)
+                        {
+                            b.Draw(Game1.mouseCursors,
+                                new Vector2(item.bounds.X + (21 * 3f) - ((currencyCount.Length - i) * 5 * 3f),
+                                    item.bounds.Y + 15 * 3f),
+                                new Rectangle(368 + ((byte)currencyCount[i] - 48) * 5, 56, 5, 7), Color.White, 0f,
+                                Vector2.Zero, 3f, SpriteEffects.None, 1f);
+                        }
                     }
                 }
             }
