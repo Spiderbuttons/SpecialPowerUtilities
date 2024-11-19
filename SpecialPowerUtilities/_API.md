@@ -3,7 +3,7 @@
 ## Power Categories
 If you are adding your powers with C#, then you will need to use this API to create a custom power category for your powers to be placed into, since you will not be able to use the content pipeline to do so. Special Power Utilities provides an [API interface](ISpecialPowerAPI.cs) for you to copy into your project to use with SMAPI's API helper.
 
-Keep in mind that if your power IDs are not prefixed with your mod ID or their prefix does not match the mod ID that you pass into the API, you will still need to manually specify that they should go into your custom category, just as you would with Content Patcher. However, this is still done via the CustomFields on your powers and not through the API. [Please see the normal documentation for more details](DOCS.md).
+Keep in mind that if your power IDs are not prefixed with your mod ID or their prefix does not match the mod ID that you pass into the API, you will still need to manually specify that they should go into your custom category, just as you would with Content Patcher. However, this is still done via the CustomFields on your powers and not through the API. [Please see the normal documentation for more details](_DOCS.md).
 
 Once you have copied the API interface into your project, here is a full example of what registering a power category could look like:
 
