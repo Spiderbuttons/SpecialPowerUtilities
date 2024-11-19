@@ -7,7 +7,7 @@ namespace SpecialPowerUtilities.APIs;
 
 public class SpecialPowerAPI : ISpecialPowerAPI
 {
-    public bool RegisterPowerCategory(string uniqueID, Func<string> displayName, string iconPath, Point sourceRectPosition = default,
+    public bool RegisterPowerCategory(string uniqueID, Func<string> displayName, string iconTexture, Point sourceRectPosition = default,
         Point sourceRectSize = default)
     {
         if (SPUTab.registeredTabs.ContainsKey(uniqueID))
@@ -17,7 +17,7 @@ public class SpecialPowerAPI : ISpecialPowerAPI
         {
             TabDisplayName = displayName(),
             TabDisplayNameFunc = displayName,
-            IconPath = iconPath,
+            IconPath = iconTexture,
             IconSourceRect = new SourceRectData
             {
                 X = sourceRectPosition.X,
