@@ -1,11 +1,12 @@
 ﻿# CONTENT PATCHER AUTHOR DOCUMENTATION
+If you are using C#, you may be interested in the [C# API documentation](_API.md) as well.
 
 ## Special Items & Powers Tabs
 If your mod does not add support specifically for Special Power Utilities, your mod will still function as normal for your users. Special Power Utilities does not alter the unlocked conditions of your powers in any way. However, you are able to designate a tab for your mod if you so choose and assign it a custom icon that Special Power Utilities will utilize. If the IDs of your special items & powers follow the standard naming convention (i.e. they are prefixed with your mod ID, such as `Author.ModName_CoolPower`) then Special Power Utilities will create a tab for your mod automatically, but you will not get to choose the icon or how the name is displayed without specifying it on your end.
 
 If you _would_ like to specify which tab your modded powers are placed in and what the icon should be, the following example showcases how this is done:
 
-```jsonc
+```js
 {
     "Action": "Load",
     "FromFile": "assets/TabIcon.png", // This can be any image so long as it is square. 16x16, 32x32, 64x64... etc. I wouldn't go overboard, though...
@@ -41,7 +42,7 @@ If your modded powers are not prefixed with your mod ID or otherwise need manual
 
 If you need to change what tab your modded powers are placed into (or need to specify it in the first place because they are not prefixed with your mod ID), then you do not need to make any changes to their names. Instead, you will assign their tab via the `CustomFields` field of your power in Content Patcher, like so:
 
-```jsonc
+```js
 {
     "Action": "EditData",
     "Target": "Data/Powers",
@@ -63,7 +64,7 @@ You will need to add this field to all of your powers that need manual assignmen
 
 ##  Reordering Powers
 Content Patcher's `MoveEntries` field will not work with the vanilla Special Items & Powers menu because it is a dictionary, not a list. Therefore, any modded powers that are added (without their own mod tab) will more than likely appear at the end of the list of powers, past the mastery stars and such, and vanilla powers are locked in place. With Special Power Utilities, you can change the ordering of the powers in the Special Items & Powers menu. This is done via the `CustomFields` field in your Data/Powers entry, with formats similar to the aforementioned `MoveEntries`, like below:
-```jsonc
+```js
     "Action": "EditData",
     "Target": "Data/Powers",
     "Fields": {
@@ -92,7 +93,7 @@ Although Special Power Utilities was made with general powers in mind, it does o
 ## Customizable Message
 
 By default, when you read a book (that isn't the Queen of Sauce recipe book) in Stardew Valley, a message will pop up with the text "You've learned a new power!" on the side of your screen. With Special Power Utilities, you can specify what text will appear instead of that message by following the below example:
-```jsonc
+```js
 {
     "Action": "EditData",
     "Target": "Data/Objects",
@@ -107,7 +108,7 @@ By default, when you read a book (that isn't the Queen of Sauce recipe book) in 
 }
 ```
 If you do not specify a message in `CustomFields`, then the vanilla behaviour will play out (i.e. your book will cause the usual "You've learned a new power!" text to appear when read). Alternatively, you can choose to prevent any message from popping up entirely by adding the context tag `spu_book_no_message`, like so:
-```jsonc
+```js
 {
     "Action": "EditData",
     "Target": "Data/Objects",
@@ -129,7 +130,7 @@ Reading a book with the `spu_book_no_message` context tag, whether it's a vanill
 
 When the animation for reading a book is displayed over your farmers head, it will take on the colour corresponding to the `color_` context tag that you added to your book item. This limits you to only choosing colours that already exist in the game for use in the dye system. With Special Power Utilities, however, you are able to specify any arbitrary colour you'd like with a context tag and a colour hex code.
     
-```jsonc
+```js
 {
     "Action": "EditData",
     "Target": "Data/Objects",
@@ -162,7 +163,7 @@ If you would like to grant a player a list of cooking recipes when you read a bo
 - (Optional) Specify a prefix for your recipe IDs in the `CustomFields` field of your book object.
 
 The context tag is _required_ for any recipe book functionality—if it is not present, the game will treat your book like a normal book and no recipes will be granted. If all of the recipe IDs you wish to give to the player are prefixed with your mod ID, you do not need to specify a prefix; Special Power Utilities will automatically find and grant any recipes added by your mod. If your cooking recipe IDs are not prefixed with your mod ID, or if you would like to specify only some recipes with a specific prefix to be granted by this book while ignoring any others, you will need to specify a prefix. The following example will show how to follow both steps:
-```jsonc
+```js
 {
     "Action": "EditData",
     "Target": "Data/Objects",
