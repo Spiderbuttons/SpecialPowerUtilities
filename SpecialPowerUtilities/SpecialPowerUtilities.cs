@@ -59,6 +59,11 @@ namespace SpecialPowerUtilities
                 return powersData.ContainsKey(query[2]) && GameStateQuery.CheckConditions(powersData[query[2]].UnlockedCondition, null, ctx.Player);
             });
         }
+
+        public override object GetApi()
+        {
+            return new SpecialPowerAPI();
+        }
         
         private void OnButtonPressed(object sender, ButtonPressedEventArgs e)
         {

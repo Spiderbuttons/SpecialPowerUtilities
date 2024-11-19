@@ -29,6 +29,8 @@ namespace SpecialPowerUtilities.Menus
             "Book_AnimalCatalogue", "Mastery_Farming", "Mastery_Fishing", "Mastery_Foraging", "Mastery_Mining",
             "Mastery_Combat"
         };
+        
+        public static Dictionary<string, ModSectionData> registeredTabs = new Dictionary<string, ModSectionData>();
 
         public int region_forwardButton = 707;
 
@@ -228,20 +230,29 @@ namespace SpecialPowerUtilities.Menus
                 }
                 else
                 {
-                    if (modSectionData[tab.Key].IconPath != null)
+                    ModSectionData data = null;
+                    if (registeredTabs.TryGetValue(tab.Key, out var registeredTab))
                     {
-                        ModdedIcon = Game1.content.Load<Texture2D>(modSectionData[tab.Key].IconPath);
+                        data = registeredTab;
+                    } else if (modSectionData[tab.Key] != null)
+                    {
+                        data = modSectionData[tab.Key];
+                    }
+                    
+                    if (data?.IconPath != null)
+                    {
+                        ModdedIcon = Game1.content.Load<Texture2D>(data.IconPath);
                     }
                     
                     Rectangle iconRect = new Rectangle(0, 0, ModdedIcon.Width, ModdedIcon.Height);
-                    if (modSectionData[tab.Key].IconSourceRect != null)
+                    if (data?.IconSourceRect != null)
                     {
-                        iconRect = new Rectangle(modSectionData[tab.Key].IconSourceRect.X,
-                            modSectionData[tab.Key].IconSourceRect.Y, modSectionData[tab.Key].IconSourceRect.Width,
-                            modSectionData[tab.Key].IconSourceRect.Height);
+                        iconRect = new Rectangle(data.IconSourceRect.X,
+                            data.IconSourceRect.Y, data.IconSourceRect.Width,
+                            data.IconSourceRect.Height);
                     }
 
-                    string hText = modSectionData[tab.Key].TabDisplayName ?? modSectionData[tab.Key].SectionName;
+                    string hText = data?.TabDisplayNameFunc is not null ? data?.TabDisplayNameFunc() : data?.TabDisplayName ?? data?.SectionName;
 
                     this.sideTabs.Add(tab.Key, new RClickableTextureComponent(0.ToString() ?? "",
                         new Rectangle(base.xPositionOnScreen - 48,
@@ -261,7 +272,7 @@ namespace SpecialPowerUtilities.Menus
                             base.yPositionOnScreen + 64 * (2 + this.tabIcons.Count) + 10, 64, 64), "",
                         hText,
                         ModdedIcon,
-                        iconRect, 64f / (modSectionData[tab.Key].IconSourceRect != null ? modSectionData[tab.Key].IconSourceRect.Width : ModdedIcon.Width) / 1.5f)
+                        iconRect, 64f / (data.IconSourceRect != null ? data.IconSourceRect.Width : ModdedIcon.Width) / 1.5f)
                     {
                         myID = 2000 + tabIcons.Count,
                         upNeighborID = 2000,
