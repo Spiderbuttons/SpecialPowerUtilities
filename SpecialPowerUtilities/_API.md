@@ -16,12 +16,17 @@ public override void Entry(IModHelper helper)
 
 private void OnAssetRequested(object? sender, AssetRequestedEventArgs e)
 {
+    if (e.NameWithoutLocale.IsEquivalentTo("TestMod/PowersCategoryIcon"))
+    {
+        e.LoadFromModFile<Texture2D>("assets/PowersTab.png", AssetLoadPriority.Medium);
+    }
+
     if (e.NameWithoutLocale.IsEquivalentTo("Data/Powers"))
     {
         e.Edit(asset =>
         {
             var powers = asset.AsDictionary<string, PowersData>();
-            powers.Data["AuthorName.ModName_Power"] = new PowersData()
+            powers.Data[$"{ModManifest.UniqueID}_Power"] = new PowersData()
             {
                 DisplayName = "Test Power",
                 Description = "Test Description",
@@ -38,11 +43,13 @@ private void OnGameLaunched(object? sender, GameLaunchedEventArgs e)
     ISpecialPowerAPI spuApi = Helper.ModRegistry.GetApi<ISpecialPowerAPI>("Spiderbuttons.SpecialPowerUtilities");
     if (spuApi is not null)
     {
-        bool res = spuApi.RegisterPowerCategory(ModManifest.UniqueID, () => "Test Category", "TileSheets\\Objects_2", new Point(80, 272), new Point(16, 16));
-        if (res)
+        if (spuApi.RegisterPowerCategory(ModManifest.UniqueID, () => "Test Category", "TestMod/PowersCategoryIcon"))
         {
-            Log.Info("Power category successfully registered.");
-        } else Log.Warning("Power category has already been registered.");
+            Log.Trace("Power category successfully registered.");
+        }
+        else Log.Error("Power category registration unsuccessful.");
     }
 }
 ```
+
+There is an overload if you need to specify a source rect for your icon if it's located on a larger tilesheet such as LooseSprites/Cursors.

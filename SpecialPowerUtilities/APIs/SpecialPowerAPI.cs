@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
+using SpecialPowerUtilities.Helpers;
 using SpecialPowerUtilities.Menus;
 using SpecialPowerUtilities.Models;
 
@@ -7,26 +8,53 @@ namespace SpecialPowerUtilities.APIs;
 
 public class SpecialPowerAPI : ISpecialPowerAPI
 {
-    public bool RegisterPowerCategory(string uniqueID, Func<string> displayName, string iconTexture, Point sourceRectPosition = default,
-        Point sourceRectSize = default)
+    public bool RegisterPowerCategory(string uniqueID, Func<string> displayName, string iconTexture)
     {
         if (SPUTab.registeredTabs.ContainsKey(uniqueID))
             return false;
-        
-        SPUTab.registeredTabs.Add(uniqueID, new ModSectionData
+
+        try
         {
-            TabDisplayName = displayName(),
-            TabDisplayNameFunc = displayName,
-            IconPath = iconTexture,
-            IconSourceRect = new SourceRectData
+            SPUTab.registeredTabs.Add(uniqueID, new ModSectionData
             {
-                X = sourceRectPosition.X,
-                Y = sourceRectPosition.Y,
-                Width = sourceRectSize.X,
-                Height = sourceRectSize.Y
-            }
-        });
-        
-        return true;
+                TabDisplayName = displayName(),
+                TabDisplayNameFunc = displayName,
+                IconPath = iconTexture,
+            });
+            return true;
+        } catch (Exception e)
+        {
+            Log.Error("Error registering power category: " + e);
+            return false;
+        }
+    }
+    
+    public bool RegisterPowerCategory(string uniqueID, Func<string> displayName, string iconTexture, Point sourceRectPosition,
+        Point sourceRectSize)
+    {
+        if (SPUTab.registeredTabs.ContainsKey(uniqueID))
+            return false;
+
+        try
+        {
+            SPUTab.registeredTabs.Add(uniqueID, new ModSectionData
+            {
+                TabDisplayName = displayName(),
+                TabDisplayNameFunc = displayName,
+                IconPath = iconTexture,
+                IconSourceRect = new SourceRectData
+                {
+                    X = sourceRectPosition.X,
+                    Y = sourceRectPosition.Y,
+                    Width = sourceRectSize.X,
+                    Height = sourceRectSize.Y
+                }
+            });
+            return true;
+        } catch (Exception e)
+        {
+            Log.Error("Error registering power category: " + e);
+            return false;
+        }
     }
 }
