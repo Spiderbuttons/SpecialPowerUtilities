@@ -1,4 +1,4 @@
-﻿{
+{
   "Config.EnableCategories.Name": "Activer catégories de pouvoirs",
   "Config.EnableCategories.Description": "Si désactivé, aucune catégorie ne sera ajoutée à l'onglet Objets spéciaux et Pouvoirs et il aura l'apparence habituelle. Vous bénéficierez toujours de tous les mods utilisant les fonctionnalités en arrière-plan de Special Power Utilities.",
   
@@ -16,5 +16,7 @@
   
   "HoverText.StardewValley": "Stardew Valley",
   "HoverText.Misc": "Divers",
-  "HoverText.Unavailable": "Non disponible"
+  "HoverText.Unavailable": "Non disponible",
+  
+  "COMPAT_HoverText.UnlockableBundles": "Monnaies du portefeuille",
 }
