@@ -18,7 +18,7 @@ If you _would_ like to specify which tab your modded powers are placed in and wh
     "Target": "Spiderbuttons.SpecialPowerUtilities/PowerTabs",  
     "Entries": {  
         "{{ModId}}": { // It's important that this is your Mod Id!
-            "TabDisplayName": "Example Power Mod",  
+            "TabDisplayName": "Example Power Mod", // You can use [LocalizedText] here.
             "IconPath": "Mods/{{ModId}}/TabIcon", // You can also target any other image, such as LooseSprites/Cursors, if you prefer. You'll want to use IconSourceRect if you do.
             "IconSourceRect": { // Optional. If not specified, the whole image will be used.
                 "X": 0,
