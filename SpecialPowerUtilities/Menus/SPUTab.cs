@@ -252,7 +252,7 @@ namespace SpecialPowerUtilities.Menus
                             data.IconSourceRect.Height);
                     }
 
-                    string hText = data?.TabDisplayNameFunc is not null ? data?.TabDisplayNameFunc() : data?.TabDisplayName ?? data?.SectionName;
+                    string hText = data?.TabDisplayNameFunc is not null ? data?.TabDisplayNameFunc() : TokenParser.ParseText(data?.TabDisplayName ?? data?.SectionName);
 
                     this.sideTabs.Add(tab.Key, new RClickableTextureComponent(0.ToString() ?? "",
                         new Rectangle(base.xPositionOnScreen - 48,
