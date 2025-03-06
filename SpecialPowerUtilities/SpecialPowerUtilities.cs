@@ -119,7 +119,8 @@ namespace SpecialPowerUtilities
         {
             if (e.NewMenu is not GameMenu menu || Config.UseVanillaMenu)
                 return;
-            int powersTabIndex = 0;
+            
+            int powersTabIndex = -1;
             for (int i = 0; i < menu.pages.Count; i++)
             {
                 if (menu.pages[i] is not PowersTab && menu.pages[i] is not SPUTab)
@@ -127,6 +128,13 @@ namespace SpecialPowerUtilities
                 powersTabIndex = i;
                 break;
             }
+
+            if (powersTabIndex < 0)
+            {
+                Log.Warn("Failed to find Powers tab in GameMenu. This is likely due to another mod modifying GameMenu.");
+                return;
+            }
+            
             Log.Trace($"Found PowersTab at index {powersTabIndex}");
             IClickableMenu oldTab = menu.pages[powersTabIndex];
             try
