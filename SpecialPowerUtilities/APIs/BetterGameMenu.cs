@@ -1,13 +1,10 @@
 ﻿#nullable enable
-
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-
 using StardewValley.Menus;
 
-using System;
-
-namespace Leclair.Stardew.BetterGameMenu;
+namespace SpecialPowerUtilities.APIs;
 
 
 /// <summary>

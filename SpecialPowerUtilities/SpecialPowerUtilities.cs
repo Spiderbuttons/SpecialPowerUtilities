@@ -1,28 +1,19 @@
 ﻿using ContentPatcher;
-
 using GenericModConfigMenu;
-
 using HarmonyLib;
-
-using Leclair.Stardew.BetterGameMenu;
-
 using Microsoft.Xna.Framework.Graphics;
-
 using SpecialPowerUtilities.APIs;
 using SpecialPowerUtilities.Config;
 using SpecialPowerUtilities.Helpers;
 using SpecialPowerUtilities.Menus;
 using SpecialPowerUtilities.Models;
 using SpecialPowerUtilities.Tokens;
-
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
-
 using StardewValley;
 using StardewValley.Delegates;
 using StardewValley.Menus;
 using StardewValley.Triggers;
-
 using System;
 using System.Collections.Generic;
 
@@ -36,9 +27,9 @@ namespace SpecialPowerUtilities
         internal static ModConfig Config { get; set; } = null!;
         internal static Harmony harmony { get; set; } = null!;
 
-        internal static IBetterGameMenuApi BetterGameMenu = null;
-
         internal static IContentPatcherAPI CP = null!;
+
+        internal static IBetterGameMenuApi BetterGameMenu = null;
 
         internal static IUnlockableBundlesAPI UBundles = null!;
 
@@ -64,7 +55,8 @@ namespace SpecialPowerUtilities
             GameStateQuery.Register("PLAYER_HAS_POWER", (string[] query, GameStateQueryContext ctx) =>
             {
                 var powersData = DataLoader.Powers(Game1.content);
-                return powersData.ContainsKey(query[2]) && GameStateQuery.CheckConditions(powersData[query[2]].UnlockedCondition, null, ctx.Player);
+                return powersData.ContainsKey(query[2]) &&
+                       GameStateQuery.CheckConditions(powersData[query[2]].UnlockedCondition, null, ctx.Player);
             });
         }
 
@@ -86,27 +78,19 @@ namespace SpecialPowerUtilities
 
             UBundles = Helper.ModRegistry.GetApi<IUnlockableBundlesAPI>("DLX.Bundles");
 
-            try
+            BetterGameMenu = Helper.ModRegistry.GetApi<IBetterGameMenuApi>("leclair.bettergamemenu");
+            if (BetterGameMenu is not null)
             {
-                BetterGameMenu = Helper.ModRegistry.GetApi<IBetterGameMenuApi>("leclair.bettergamemenu");
+                BetterGameMenu.RegisterImplementation(
+                    nameof(VanillaTabOrders.Powers),
+                    priority: 100,
+                    getPageInstance: menu =>
+                        new SPUTab(menu.xPositionOnScreen, menu.yPositionOnScreen, menu.width, menu.height),
+                    getWidth: width => width - 64 - 16,
+                    onResize: input => new SPUTab(input.Menu.xPositionOnScreen, input.Menu.yPositionOnScreen,
+                        input.Menu.width, input.Menu.height)
+                );
             }
-            catch (Exception ex)
-            {
-                Monitor.Log($"Error attempting to get Better Game Menu API: {ex}", LogLevel.Warn);
-            }
-
-            static IClickableMenu CreateInstance(IClickableMenu menu)
-            {
-                return new SPUTab(menu.xPositionOnScreen, menu.yPositionOnScreen, menu.width, menu.height);
-            }
-
-            BetterGameMenu?.RegisterImplementation(
-                nameof(VanillaTabOrders.Powers),
-                priority: 100,
-                getPageInstance: CreateInstance,
-                getWidth: width => width - 64 - 16,
-                onResize: input => CreateInstance(input.Menu)
-            );
 
             var configMenu = Helper.ModRegistry.GetApi<IGenericModConfigMenuApi>("spacechase0.GenericModConfigMenu");
             if (configMenu != null) Config.SetupConfig(configMenu, ModManifest, Helper);
@@ -147,7 +131,8 @@ namespace SpecialPowerUtilities
             IClickableMenu oldTab = menu.pages[powersTabIndex];
             try
             {
-                menu.pages[powersTabIndex] = new SPUTab(oldTab.xPositionOnScreen, oldTab.yPositionOnScreen, oldTab.width, oldTab.height);
+                menu.pages[powersTabIndex] = new SPUTab(oldTab.xPositionOnScreen, oldTab.yPositionOnScreen,
+                    oldTab.width, oldTab.height);
             }
             catch (Exception ex)
             {
