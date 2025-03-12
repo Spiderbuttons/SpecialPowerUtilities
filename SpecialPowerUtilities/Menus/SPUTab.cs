@@ -342,7 +342,6 @@ namespace SpecialPowerUtilities.Menus
             {
                 this.allClickableComponents.Add(v.Value);
             }
-
             foreach (KeyValuePair<string, List<List<ClickableTextureComponent>>> v in sections)
             {
                 foreach (List<ClickableTextureComponent> list in v.Value)
@@ -626,7 +625,7 @@ namespace SpecialPowerUtilities.Menus
                 string name = TokenParser.ParseText(pData.DisplayName);
                 string description = TokenParser.ParseText(pData.Description);
                 Texture2D texture = Game1.content.Load<Texture2D>(pData.TexturePath);
-                list.Add(new ClickableTextureComponent(name, new Rectangle(xPos, yPos, 64, 64), null, description,
+                list.Add(new ClickableTextureComponent(power.Key as string, new Rectangle(xPos, yPos, 64, 64), name, description,
                     texture, new Rectangle(pData.TexturePosition.X, pData.TexturePosition.Y, 16, 16), 4f,
                     unlocked)
                 {
@@ -638,7 +637,11 @@ namespace SpecialPowerUtilities.Menus
                             ? (-7777)
                             : ((index + list.Count + (54 * (sections[whichCategory].Count - 1))) + categoryWidth)),
                     upNeighborID = ((list.Count < categoryWidth) ? 12346 : ((index + list.Count + (54 * (sections[whichCategory].Count - 1))) - categoryWidth)),
-                    fullyImmutable = true
+                    fullyImmutable = true,
+                    // make sure the label doesn't render
+                    drawLabel = false,
+                    // use drawLabelWithShadow to store unavailable
+                    drawLabelWithShadow = unavailablePowers.Contains(power.Key as string)
                 });
                 widthUsed[whichCategory]++;
             }
@@ -839,20 +842,11 @@ namespace SpecialPowerUtilities.Menus
                     if (c.containsPoint(x, y))
                     {
                         c.scale = Math.Min(c.scale + 0.02f, c.baseScale + 0.1f);
-                        this.hoverText = (c.drawShadow ? c.name : "???");
-                        string key = null;
-                        foreach (DictionaryEntry power in allPowers)
-                        {
-                            PowersData pData = power.Value as PowersData;
-                            if (TokenParser.ParseText(pData.DisplayName) == c.name)
-                            {
-                                key = power.Key as string;
-                                break;
-                            }
-                        }
+                        this.hoverText = (c.drawShadow ? c.label : "???");
+                        string key = c.name;
                         this.descriptionText = Game1.parseText(c.hoverText, Game1.smallFont,
                             Math.Max((int)Game1.dialogueFont.MeasureString(this.hoverText).X, 320));
-                        if (unavailablePowers.Contains(key))
+                        if (c.drawLabelWithShadow)
                         {
                             this.descriptionText += Game1.parseText(($"\r\n\r\n{i18n.HoverText_Unavailable()}.").ToUpper(),
                                 Game1.smallFont,
@@ -917,22 +911,14 @@ namespace SpecialPowerUtilities.Menus
             {
                 foreach (ClickableTextureComponent item in sections[currentTab][currentPage])
                 {
-                    bool drawColor = item.drawShadow;
-                    string key = null;
-                    foreach (DictionaryEntry power in allPowers)
-                    {
-                        PowersData pData = power.Value as PowersData;
-                        if (TokenParser.ParseText(pData?.DisplayName) == item.name)
-                        {
-                            key = power.Key as string;
-                            break;
-                        }
-                    }
-                    if (!drawColor)
+                    bool unlocked = item.drawShadow;
+                    bool unavailable = item.drawLabelWithShadow;
+                    string key = item.name;
+                    if (!unlocked)
                     {
                         item.draw(b, Color.Black * 0.2f, 0.86f);
                     }
-                    else if (unavailablePowers.Contains(key))
+                    else if (unavailable)
                     {
                         item.draw(b, Color.DimGray * 0.4f, 0.86f);
                     }
